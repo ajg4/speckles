@@ -39,8 +39,8 @@ numSource=1
 
 #Setup
 z1=100
-ext=5e-3        
-px=int(2**10)
+ext=1e-3        
+px=int(2**13)
    
 #Computing   
 cores=16
@@ -190,66 +190,24 @@ print(time.time()-a)
 #%% plotting against LW
 theta=np.arctan(xxg/(z1))
 
-omega=2*np.pi*c/lam
-fac=(1/gamma**2+theta**2)
-xi=omega*radius/3/c*fac**(3/2)
-
-
-ih1=omega*fac*kv(2/3,xi)
-iv1=np.abs(omega*np.sqrt(fac)*theta*kv(1/3,xi))
-
-norm=np.max(ih1)
-
-ih1=ih1/norm
-iv1=np.abs(iv1/norm)
-
-
-srwx=np.abs(imgs[0,:,int(px/2)])
-srwy=np.abs(imgs[1,:,int(px/2)])
-
-norm2=np.max(srwx)
-
-srwx=srwx/norm2
-srwy=srwy/norm2
-
-#%%
-
-theta=np.arctan(xxg/(z1))
-
 mid=int(px/2)
 center=xxg[mid]
 
 k=2*np.pi/lam
 
-ih1_angle=1/z1*np.exp(-1j*k*np.sqrt(xxg**2+z1**2)+1j*k*np.sqrt(center**2+z1**2))
-dubi=np.angle(ih1_angle[mid])
-ih1_angle=np.angle(ih1_angle*np.exp(-1j*dubi)*(-1))
+ih1=1/z1*np.exp(-1j*k*np.sqrt(xxg**2+z1**2)+1j*k*np.sqrt(center**2+z1**2))
+ih1_angle=np.angle(ih1)
+dubi=ih1_angle[mid]
+ih1_angle=np.angle(ih1*np.exp(-1j*dubi))
+
+srwx=np.angle(imgs[0,:,int(px/2)])
+dubi=srwx[mid]
+srwx=np.angle(imgs[0,:,int(px/2)]*np.exp(-1j*dubi))*(-1)
 
 
-ih1_angle-=np.min(ih1_angle)
-ih1_angle/=np.max(ih1_angle)
-
-
-
-srwx_angle=np.angle(imgs[0,:,int(px/2)])
-dubi=srwx_angle[mid]
-srwx_angle=np.angle(imgs[0,:,int(px/2)]*np.exp(-1j*dubi)*(-1))*(-1)
-
-srwy_angle=np.angle(imgs[1,:,int(px/2)])
-dubi=srwy_angle[mid]
-srwy_angle=np.angle(imgs[1,:,int(px/2)]*np.exp(-1j*dubi)*(-1))*(-1)
-
-
-srwx_angle-=np.min(srwx_angle)
-srwx_angle/=np.max(srwx_angle)
-
-srwy_angle-=np.min(srwy_angle)
-srwy_angle/=np.max(srwy_angle)
-
-
-#plt.plot(ih1)
-#plt.plot(srwx_angle)
-
+srwy=np.angle(imgs[1,:,int(px/2)])
+dubi=srwy[mid]
+srwy=np.angle(imgs[0,:,int(px/2)]*np.exp(-1j*dubi))*(-1)
 
 
 #%%
@@ -266,32 +224,31 @@ plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 
-fig=plt.figure('Figure_4.svg',figsize=(20,10))
+fig=plt.figure('Figure_5',figsize=(20,10))
+
 ax1 = fig.add_subplot(111)
 
-#plt.plot(xxg,ih1,label='LW horizontal')
+#plt.plot(xxg,ih1_angle,label='LW horizontal',color="g")
 #plt.plot(xxg,iv1,label='LW vertical')
 ax1.plot(xxg*1e3,srwx,label='SRW horizontal',color="#1f77b4")
-ax1.plot(xxg*1e3,srwy,label='SRW vertical',color="#ff7f0e")
+#ax1.plot(xxg,srwy,label='SRW vertical',color="#ff7f0e")
 ax1.legend(loc="upper left")
-ax1.set_ylabel(r"intensity [a.u.]")
+ax1.set_ylabel(r"phase [rad]")
 ax1.set_xlabel("x,y [mm]")
+ax1.set_ylim(-4,4.5)
 
 ax2=ax1.twinx()
-ax2.plot(xxg*1e3,100*(srwx-ih1)/srwx,label="deviation from LW horizontal",color="#1f77b4",linestyle="--")
-ax2.plot(xxg*1e3,100*(srwy-iv1)/srwy,label="deviation from LW vertical",color="#ff7f0e",linestyle="--")
-ax2.legend(loc="upper right")
-ax2.set_ylabel("deviation [%]")
 
+ax1.set_zorder(1)  # default zorder is 0 for ax1 and ax2
+ax1.patch.set_visible(False)  # prevents ax1 from hiding ax2
+
+diff=np.where((srwx-ih1_angle)<-1,0,srwx-ih1_angle)
+ax2.plot(xxg*1e3,1e3*diff,label="deviation from LW horizontal",color="#ff7f0e",alpha=0.7,linestyle="--")
+###ax2.plot(xxg,100*(srwy-ih1)/srwy,label="SRW deviation from LW vertical",color="#ff7f0e",linestyle="--")
+ax2.legend(loc="upper right")
+ax2.set_ylabel("phase deviation [mrad]")
 
 
 
 plt.tight_layout()
-plt.savefig("/eos/home-a/agoetz/scripts/thesis/Figure_4.svg",format="svg") 
-
-
-
-
-
-
-
+plt.savefig("/eos/home-a/agoetz/scripts/thesis/Figure_5.svg",format="svg") 
