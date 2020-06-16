@@ -128,8 +128,8 @@ def exp_speckles(path, pxx,pxy,cores):
 
 # colloidpath='/home/alex/Desktop/Lab/20x_1um/2/'
 # waterpath='/home/alex/Desktop/Lab/20x_1um/w2/'
-colloidpath='/home/alex/Desktop/Lab/10x_1um/5/'
-waterpath='/home/alex/Desktop/Lab/10x_1um/w5/'
+colloidpath='/home/alex/Desktop/Lab/10x_1um/2/'
+waterpath='/home/alex/Desktop/Lab/10x_1um/w2/'
 
 cavim,cavimft=exp_speckles(colloidpath,pxx,pxy,cores)
 cy=radial_profile(cavimft,[int(pxx/2),int(pxy/2)])
