@@ -53,7 +53,7 @@ for jobtask in range(1):
     #%%       
     k=2*np.pi/lam
     sigmaC=lam*(z1+z2)/sigma/2/np.pi
-    sigmaS=0.4793**lam*z2/colloid
+    sigmaS=0.4793*lam*z2/colloid
     sigmaD=np.sqrt(1/(sigmaC**(-2)+sigmaS**(-2)))
 
     np.random.seed(jobId0*int(1e10*(time.time()%0.0001)))
