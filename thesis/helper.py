@@ -23,6 +23,7 @@ def focused_otf(q,NA,lam):
     
     s=lam*q/NA/2
     otf=2/np.pi*(np.arccos(s)-s*np.sqrt(1-s**2))
+    otf=np.nan_to_num(otf)
     return(otf)
 
 

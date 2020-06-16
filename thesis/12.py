@@ -8,7 +8,6 @@ import gc
 from helper import radial_profile, focused_otf
 from scipy.optimize import curve_fit
 
-
 #%%
 extx=5.4e-3#7.2e-3
 pxx=1236#1626
@@ -26,8 +25,8 @@ k=2*np.pi/lam
 # alpha=np.arctan(radius/brenn)
 # NA=np.sin(alpha)*1.458
 
-NA=0.4
-
+# NA=0.4
+NA=0.25
 
 #%% magnification
 
@@ -38,10 +37,12 @@ def fsin(x,w,a,b,c):
 x=np.linspace(0,extx,pxx)   
 
 paths=[]
-paths.append(['/home/alex/Desktop/Lab/20x_mag/6/',60])
-paths.append(['/home/alex/Desktop/Lab/20x_mag/7/',70])
-paths.append(['/home/alex/Desktop/Lab/20x_mag/10/',100])
+# paths.append(['/home/alex/Desktop/Lab/20x_mag/6/',60])
+# paths.append(['/home/alex/Desktop/Lab/20x_mag/7/',70])
+# paths.append(['/home/alex/Desktop/Lab/20x_mag/10/',100])
 
+paths.append(['/home/alex/Desktop/Lab/10x_mag/9/',90])
+paths.append(['/home/alex/Desktop/Lab/10x_mag/10/',100])
 
 zoom_list=[]
 
@@ -81,44 +82,41 @@ for i in range(len(paths)):
 zoom=np.mean(zoom_list)    
 print("magnification: ",zoom)
 
-
 #%% speckles mtf
 
-def furierer(files,av,pxx,pxy,coreid):
-    imft=np.zeros((len(files),pxy,pxx))
+def furierer(path,files,av,pxx,pxy,coreid):
+    imft=np.zeros((pxy,pxx))
     for i in range(len(files)):
-        cim=files[i]-av
-        imft[i]=np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(cim))))**2
+        im = np.array(Image.open(path+files[i]))[:pxx,150:pxx+150]
+        cim=im-av
+        imft+=np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(cim))))**2
         if(coreid==0):
             print("fft ",i,len(files))
-    out=np.sum(imft,axis=0)
-    return(out)
+    return(imft)
         
 
 def exp_speckles(path, pxx,pxy,cores):
     files = [f for f in listdir(path) if isfile(join(path, f))]
-    # files=files[:-1]
     
-    img=np.zeros((len(files),pxy,pxx))
+    img=np.zeros((pxy,pxx))
     for i in range(len(files)):
         if(files[i][-4:]=="tiff"):
             im = np.array(Image.open(path+files[i]))
-            im=im[:pxx,150:pxx+150]
-            img[i]=im
+            img+=im[:pxx,150:pxx+150]
             print("loaded file ",i,len(files))
     
     cut=len(files)/cores
     cut2=len(files)-int((cut%1)*4)
     waterfiles=files[:cut2]
     
-    wavim=np.sum(img,axis=0)/len(waterfiles)
+    wavim=img/len(waterfiles)
     
     pool=ThreadPool(processes=cores)
     sl=int(len(files)/cores)    
     imft=np.zeros((sl,pxy,pxx))
     proc=[]
     for i in range(cores):
-        proc.append(pool.apply_async(furierer,(img[i*sl:(i+1)*sl],wavim,pxy,pxx,i)))
+        proc.append(pool.apply_async(furierer,(path,files[i*sl:(i+1)*sl],wavim,pxy,pxx,i)))
     for i in range(cores):
         imft[i:(i+1)]=proc[i].get()
     
@@ -128,8 +126,10 @@ def exp_speckles(path, pxx,pxy,cores):
     
     return(wavim,wavimft)
 
-colloidpath='/home/alex/Desktop/Lab/20x_1um/0/'
-waterpath='/home/alex/Desktop/Lab/20x_1um/w0/'
+# colloidpath='/home/alex/Desktop/Lab/20x_1um/2/'
+# waterpath='/home/alex/Desktop/Lab/20x_1um/w2/'
+colloidpath='/home/alex/Desktop/Lab/10x_1um/5/'
+waterpath='/home/alex/Desktop/Lab/10x_1um/w5/'
 
 cavim,cavimft=exp_speckles(colloidpath,pxx,pxy,cores)
 cy=radial_profile(cavimft,[int(pxx/2),int(pxy/2)])
@@ -137,117 +137,95 @@ cy=radial_profile(cavimft,[int(pxx/2),int(pxy/2)])
 wavim,wavimft=exp_speckles(waterpath,pxx,pxy,cores)
 wy=radial_profile(wavimft,[int(pxx/2),int(pxy/2)])
 
-freqs=np.fft.fftshift(np.fft.fftfreq(int(np.sqrt((pxx/2)**2+(pxy/2)**2)),exty/pxy/zoom))
-q=np.linspace(0,freqs[-1],np.size(cy))
+q=np.linspace(0,pxx*np.sqrt(2)/(extx/zoom)/2,np.size(cy)) #nyquist frequency for radial (sqrt(2)) extension and zoom factor
 
-y=cy-wy
-y=y/np.max(y)
+cy=cy/np.max(cy)
+wy=wy/np.max(wy)
 
 
-# from scipy.optimize import curve_fit
-# def expd(x,a,b,c):
-#     return(np.exp(-x/a)*b+c)
+cy2=cavimft[int(pxx/2):,int(pxx/2)]
+cy2=cy2/np.max(cy2)
+q2=np.linspace(0,pxx/(extx/zoom)/2,int(pxx/2))
 
-# cy_cut=cy[2:-300]
-# x_cut=x[2:-300]
-
-# cut_for_fit_x=x_cut[:300]
-# cut_for_fit_y=cy_cut[:300]
-
-# p0=[1e5,4e9,1e9]
-# par,err=curve_fit(expd,cut_for_fit_x,cut_for_fit_y,p0=p0)
-
-# cy_fitted=expd(cut_for_fit_x,*par)
-
+cy3=cavimft[int(pxx/2),int(pxx/2):]
+cy3=cy3/np.max(cy3)
+q3=np.linspace(0,pxx/(extx/zoom)/2,int(pxx/2))
     
 #%% slant edge
 
-path='/home/alex/Desktop/Lab/20x_slant/'
+# path='/home/alex/Desktop/Lab/20x_slant/'
+path='/home/alex/Desktop/Lab/10x_slant/'
 
 files = [f for f in listdir(path) if isfile(join(path, f))]
+sy_list=[]
 
-img=np.zeros((len(files),pxy,pxx))
 for j in range(len(files)):
     if(files[j][-4:]=="tiff"):
+        print("slant edge ",j)
         im = np.array(Image.open(path+files[j]))
         im=im[:pxx,150:pxx+150]
-        img[j]=im
-    
-im=im/np.max(im)
+           
+        img=im/np.max(im)
+        
+        img2=np.where(img < np.mean(img), 0, 1)       
+        
+        if(np.mean(img2[:,0])>0.5):
+            print("flipped ",j)
+            img=np.flip(img)
+            img2=np.flip(img2)
 
-img2=np.where(im < np.mean(im), 0, 1)
+        
+        clist=np.empty((pxy))
+        for i in range(pxy):
+            clist[i]=img2[i].tolist().index(1)
+        
+        z = np.polyfit(np.arange(pxy), clist, 1)
+        p=np.poly1d(z)
+        
+        alpha=np.arctan(z[0])
+        
+        pr=np.empty((2,pxx*pxy))
+        k=0
+        for i in range(pxx):
+            for m in range(pxy):
+                l=np.sqrt((i+1)**2+(m+1)**2)
+                beta=np.arctan((m+1)/(i+1))
+                x=np.cos(alpha+beta)*l
+                pr[0,k]=x
+                pr[1,k]=img[m,i]
+                k+=1
+        
+        center=clist[0]
+        
+        indices=np.argsort(pr[0])
+        x=pr[0][indices]
+        y=pr[1][indices]
+        
+        xstart=np.argmin(np.abs(x-center+100))
+        xfin=np.argmin(np.abs(x-center-100))
+        x=x[xstart:xfin]
+        y=y[xstart:xfin]
+        y/=np.max(y)
+        
+        bins=500
+        
+        yh,xh=np.histogram(x,bins=bins,weights=y)
+        
+        yh/=np.max(yh)
+        yhg=np.gradient(yh)
+        
+        hbins=int(bins/2)
+        fft=(np.abs((np.fft.fft(yhg))))[:hbins]
+        
+        sy_list.append(fft)
 
-clist=np.empty((pxy))
-for i in range(pxy):
-    clist[i]=img2[i].tolist().index(img[0,-1])
-
-z = np.polyfit(np.arange(pxy), clist, 1)
-p=np.poly1d(z)
-
-alpha=np.arctan(z[0])
-
-pr=np.empty((2,pxx*pxy))
-k=0
-for i in range(pxx):
-    for j in range(pxy):
-        l=np.sqrt((i+1)**2+(j+1)**2)
-        beta=np.arctan((j+1)/(i+1))
-        x=np.cos(alpha+beta)*l
-        pr[0,k]=x
-        pr[1,k]=img[j,i]
-        k+=1
-
-center=clist[0]
-
-indices=np.argsort(pr[0])
-x=pr[0][indices]
-y=pr[1][indices]
-
-xstart=np.argmin(np.abs(x-center+100))
-xfin=np.argmin(np.abs(x-center-100))
-x=x[xstart:xfin]
-y=y[xstart:xfin]
-y/=np.max(y)
-
-
-#def func(x,u,s,d,e):
-#    fermi=e/(np.exp((x-u)/s)+1)+d
-#    return(fermi)  
-#
-#popt, pcov = curve_fit(func, x, y,p0=[center,1,0.1,1])
-#plt.scatter(x,y,s=0.5)
-#plt.plot(x,func(x,*popt),color='r')
-
-yh,xh=np.histogram(x,bins=500,weights=y)
-yh/=np.max(yh)
-plt.plot(xh[1:],yh,color='g')
-yhg=np.gradient(yh)
-
-
-xfreq=np.fft.fftfreq(500,(x[-1]/x[0])/pxx*extx*23.56/500)*2*np.pi
-
-fft=np.abs((np.fft.fft(yhg)))**2
-
-cut=40
-
-plt.figure("manual projection")
-plt.plot(xfreq[:cut],fft[:cut])
-
+xfreq=np.linspace(0,bins*zoom*pxx/(x[-1]-x[0])/extx/2,hbins)
 
 #%% theoretical mtf
+N=1/(2*NA)
+print("cutoff at ",1/(lam*N))
 
-# q=x_cut
 otf_foc=focused_otf(q,NA,lam)
-# otf_foc=otf_foc/np.max(otf_foc)*np.max(cy_fitted)
-
-
-#%% theoretical mtf defocused
-# dz=1e-3
-# zetas=100
-# n=1
-# terms=10
-
-# otf=defocused_otf(dz,zetas,q,NA,lam,n,terms)
 
 #%%
 SMALL_SIZE = 30
@@ -263,17 +241,35 @@ plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 fig=plt.figure('Figure_12.svg',figsize=(20,10))
-plt.plot(q*1e-6,y,label="measurement")
-# plt.plot(cut_for_fit_x*1e-6,cy_fitted,label=r"exponential fit [exp(-q/a)] with a="+str(round(par[0]*1e-6,3))+r" $\mu m^{-1}$")
-plt.plot(q*1e-6,otf_foc,label="focused with NA="+str(round(NA,3)))
-# plt.plot(q*1e-6,otf,label="defocused with NA="+str(round(NA,3)))
-# plt.plot(x_cut*1e-6,expd(x_cut,*an_par),label="exponential fit with a="+str(round(an_par[0]*1e-6,3))+r" $\mu m^{-1}$")
+
+
+idx=2
+norm=cy[idx]
+
+otf_foc_plot=otf_foc/otf_foc[idx]*norm
+
+plt.plot(q*1e-6,cy,label="measurement colloids")
+# plt.plot(q2*1e-6,cy2,label="measurement colloids2")
+# plt.plot(q3*1e-6,cy3,label="measurement colloids3")
+plt.plot(q*1e-6,wy,label="measurement water")
+plt.plot(q*1e-6,otf_foc_plot,label="analytic with NA="+str(round(NA,3)))
+
+idx = (np.abs(q - 0.1*1e6)).argmin()
+norm=cy[idx]
+for i in range(len(sy_list)):
+    cut=80
+    sx=xfreq[:cut]
+    idx = (np.abs(sx - 0.1*1e6)).argmin()
+    sy=sy_list[i][:cut]
+    sy=sy/sy[idx]*norm
+    plt.plot(sx*1e-6,sy,label="slant edge "+str(i))
+
 plt.xlabel(r"spatial frequency $[\mu m^{-1}]$")
 plt.ylabel("power spectrum")
 plt.legend()
-# plt.yscale("log")
+plt.yscale("log")
 # plt.xscale("log")
-plt.legend()
+plt.legend(loc="upper right")
 
 
 plt.tight_layout()
