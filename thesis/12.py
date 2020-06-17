@@ -380,6 +380,6 @@ plt.yscale("log")
 plt.legend(loc="upper right")
 
 plt.tight_layout()
-plt.savefig("Figure_12.svg",format="svg")
+# plt.savefig("Figure_12.svg",format="svg")
 
 
