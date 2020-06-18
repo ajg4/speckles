@@ -155,7 +155,7 @@ def radial_profile(data,center):
     return(radialprofile) 
 
 
-def bhmie(lam,radius,refrel,nang,polyorder,rad):
+def bhmie(lam,radius,refrel,nang,rad):
     """   
 
     Parameters
@@ -343,27 +343,7 @@ def bhmie(lam,radius,refrel,nang,polyorder,rad):
     qback = 4*(abs(s1[2*nang-2])/dx)**2    
     #qback = ((abs(s1[2*nang-2])/dx)**2 )/pii  #old form
 
-    i=abs(s1_1)**2+abs(s2_1)**2
-    theta=linspace(0,rad,nang)
-    i/=max(i)    
-    z=polyfit(theta,i,polyorder)
-    p = poly1d(z)
-    # return(i,p,s1_1,s1_2)
 
-    return i,p,s1,s2,qext,qsca,qback,gsca
+    return(s1_1,s2_1,qext,qsca,qback,gsca)
 
-
-
-
-# lam=632e-9
-# radius=500e-9*2
-# # refrel=1+1e-1+1e-1j
-# refrel=1.457
-# nang=1000
-# polyorder=10
-# rad=np.pi
-
-
-# a=bhmie(lam,radius,refrel,nang,polyorder,rad)
-# print(a[3])
 
