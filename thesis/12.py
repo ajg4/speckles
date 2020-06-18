@@ -308,7 +308,7 @@ NA=0.4
 
 cutoff=NA/lam
 
-SIZE = 20
+SIZE = 30
 
 plt.rc('font', size=SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=SIZE)     # fontsize of the axes title
@@ -327,9 +327,10 @@ idx_c = (np.abs(q - 0.15*1e6)).argmin()
 norm_c=cyl[0][idx_c]
 
 
-# linerange=[1]
-linerange=np.arange(len(cyl))
-linerange2=np.arange(len(cyl2))
+linerange=[1]
+linerange2=[1]
+# linerange=np.arange(len(cyl))
+# linerange2=np.arange(len(cyl2))
 
 for i in linerange:
     norm_temp=cyl[i][idx_c]
@@ -364,8 +365,8 @@ for i in range(len(syl)):
 sy_plot=np.mean(sy_tot,axis=0)
 sy_plot=sy_plot/sy_plot[idx_s]*norm_c
 
-plt.plot(sx*1e-6,sy_plot,label="slant edge",color="tab:purple")
 
+plt.plot(sx*1e-6,sy_plot,label="slanted edge",color="tab:purple")
 
 idx_lp = (np.abs(lp_x - 0.15*1e6)).argmin()
 norm_lp=lp_y[idx_lp]
@@ -377,6 +378,8 @@ plt.xlabel(r"spatial frequency $[\mu m^{-1}]$")
 plt.ylabel("power spectrum")
 plt.yscale("log")
 # plt.xscale("log")
+plt.xlim(-0.05,1.5)
+plt.ylim(1e-7,1)
 plt.legend(loc="upper right")
 
 plt.tight_layout()
