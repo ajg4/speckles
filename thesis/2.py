@@ -12,22 +12,21 @@ from scipy.special import jv
 import numpy as np
 from scipy.optimize import curve_fit
 import sys
-from mie import bhmie
+from helper import bhmie
 
 points=1000
-order=15
+rad=np.pi/2/10000*1.3
 radius=500e-9
+lam=1e-10
+refr=1 - 1.28e-6 + 2.49e-09*1j
 
 #lam=632e-9
 #refr=1.587/1.331
 #rad=np.pi/2
 
-lam=1e-10
-refr=1 - 1.28e-6 + 2.49e-09*1j
-rad=np.pi/2/10000*1.3
 
-a=bhmie(lam,radius,refr,points,order,rad)
-mie=np.abs(a[2])
+a=bhmie(lam,radius,refr,points,rad)
+mie=np.abs(a[0])
 mie=mie/np.max(mie)
 
 theta=np.linspace(0,rad,points)
@@ -73,3 +72,16 @@ plt.legend()
 
 plt.tight_layout()
 plt.savefig("Figure_2.svg",format="svg")
+
+#%% Comparison of Mie and Van de Hulst exstinction cross section
+
+x=2*np.pi*radius/lam
+rho=2*x*(np.real(refr)-1)
+Q=2-4/rho*np.sin(rho)+4/rho**2*(1-np.cos(rho))
+geometric_cross=radius**2*np.pi
+
+qext_theory=geometric_cross*Q
+qext_mie=geometric_cross*a[2]
+
+print("qext_theory :",qext_theory)
+print("qext_mie :",qext_mie)
