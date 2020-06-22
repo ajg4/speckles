@@ -1,13 +1,14 @@
-import sys
-sys.path.append('/eos/home-a/agoetz/scripts/SRW/')
 import time
+import sys
+sys.path.insert(0, './srw')
 import numpy as np
 import multiprocessing as mp
-from srwlpy import *
+# from srwlpy import *
 from srwlib import *
 import pickle as pk
 import os
 import h5py
+from helper import bhmie
 #%%  
 #jobId0=int(sys.argv[1]) #for using the batch cluster
 jobId0=1
@@ -16,7 +17,7 @@ for jobtask in range(1):
     
     jobId=str(jobId0)+"_"+str(jobtask)    
 #    path='./'
-    path='/eos/home-a/agoetz/tempresults/'
+    path='/home/alex/Desktop/temp_res'
 #    path='/home/agoetz/Desktop/'
     file="img_final.p"
 
