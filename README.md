@@ -17,13 +17,13 @@ Several scripts to reproduce the plots of my master thesis, including the SRW si
 - 8_0.py ... simulation of speckles with SRW and an analytic scattering model
 - 8_1.py ... simulation of speckles with an analytic synchrotron radiation model and an analytic scattering model
 - 9.py ... effect of spatial filtering
-- 10.py ... classic methods of MTF evaluation
+- 10.py ... MTF for incoherent light
 - 11.py ... a typical speckle pattern
-- 12.py ... comparison of classic methods and the speckles method for MTF evaluation
-- 13.py ... none
+- 12.py ... MTF of coherent light
+- 13.py ... MTF for corrected incoherent and coherent light
 - 14.py ... the effect of a defocused system (scinitillator) on the MTF in comparision with a perfectly focused system
 - 15.m ... a CELES Matlab code, for numerically calculating the near field of the scattering at a colloid for xrays.
 
 
-## SRW
+### SRW
 The SRW repository copied from @ochubar. Tested in a conda=4.8.2 python=3.7 environment on Ubuntu 18.04.3.
