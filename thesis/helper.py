@@ -1,6 +1,7 @@
 from numpy import *
 import numpy as np
 from scipy.special import jv
+from multiprocessing.pool import ThreadPool
 
 def focused_otf(q,NA,lam):
     """
@@ -347,3 +348,174 @@ def bhmie(lam,radius,refrel,nang,rad):
     return(s1_1,s2_1,qext,qsca,qback,gsca)
 
 
+def the_speckles(sigmax,sigmay,lam,fwhmk,numSource,z1,z2,fwhmz2,ext,px,colloid_radius,numScat,mie_interpol,cores):
+    k=2*np.pi/lam
+    colloid_diameter=colloid_radius*2
+     
+      
+    #replace zeros by small numbers
+    if(sigmax==0):
+        sigmax=1e-20
+    if(sigmay==0):
+        sigmay=1e-20
+    if(fwhmz2==0):
+        fwhmz2=1e-20
+    
+    
+    #scatlist contains the positions of the scatterers
+    np.random.seed(1)
+    x=(np.random.rand(numScat)*0.8-0.4)*ext
+    y=(np.random.rand(numScat)*0.8-0.4)*ext
+    #x=(np.random.rand(numScat))*ext
+    #y=(np.random.rand(numScat))*ext
+    z=np.random.rand(numScat)*fwhmz2
+    
+    x[0]=0
+    y[0]=0
+    scatlist=np.rot90([x,y,z])
+    
+    #beamlist has all the information about the particles
+    #one particle emits one specific wavelength, not physical but ok
+    beamx=np.random.standard_normal(numSource)*sigmax
+    beamy=np.random.standard_normal(numSource)*sigmay
+    ks=k*(1+np.random.standard_normal(numSource)*fwhmk)
+    
+    beamlist=np.rot90([beamx,beamy,ks])
+    
+       
+    #taking a set of beamparticles, looping each over all the scatteres
+    def thread(beamlist,ext,px,z1,z2,scatlist,mie_interpol):
+        img=np.zeros((px,px))
+        for j in range(len(beamlist)):
+            k=beamlist[j][2]
+    
+    #calculating the field at the detection plane     
+            Min,Max,n=-ext/2,ext/2,px   
+            
+            xx=np.linspace(Min-beamlist[j][0],Max-beamlist[j][0],n)
+            yy=np.linspace(Min-beamlist[j][1],Max-beamlist[j][1],n)
+            yy=np.rot90([yy])
+            RR2=np.sqrt(xx**2+yy**2+(z1+z2)**2)
+            e2=np.exp(1j*k*RR2)/RR2        
+            
+            e10s=np.zeros((px,px),dtype='complex128')
+            for i in range(len(scatlist)):
+                x=scatlist[i][0]
+                y=scatlist[i][1]
+                z2c=scatlist[i][2]
+    
+    #calculating the phase of the field at the position of a scatterer
+                e10=np.exp(1j*k*np.sqrt(x**2+y**2+(z1-z2c)**2)) 
+               
+    #calculating the scattering efficiency of the scatterer
+    #taking into account its displaced central point according to the divergence of the beam            
+                scale=(z1+z2)/(z1-z2c)
+                xx=np.linspace(Min-x*scale,Max-x*scale,n)    
+                yy=np.linspace(Min-y*scale,Max-y*scale,n)  
+                yy=np.rot90([yy])
+                
+                theta=np.arctan(np.sqrt(xx**2+yy**2)/(z2+z2c))               
+                pattern=mie_interpol(theta)
+        
+                pattern/=np.max(pattern)                 
+    
+    #calculating the field of the scattering particle and shapping it by the patter of the scattering efficiency
+                xx=np.linspace(Min-x,Max-x,n)
+                yy=np.linspace(Min-y,Max-y,n)
+                yy=np.rot90([yy])
+                RR3=np.sqrt(xx**2+yy**2+(z2+z2c)**2)
+                
+                e10s+=e10*np.exp(1j*k*RR3)/RR3*pattern
+    
+    #letting interfere the inital field and the scattered field, subtracting their absolute values         
+            add=np.abs(e10s+e2)**2-np.abs(e2)**2-np.abs(e10s)**2
+            img+=add
+        return(img)
+    
+    #same thing, but multithreading the scatteres instead of the particles (for one central particle)
+    def cthread(scatlist,ext,px,z1,z2,k,mie_interpol):
+        Min,Max,n=-ext/2,ext/2,px
+        e10s=np.zeros((px,px),dtype='complex128')
+        for i in range(len(scatlist)):
+            x=scatlist[i][0]
+            y=scatlist[i][1]
+            z2c=scatlist[i][2]  
+                             
+            e10=np.exp(1j*k*np.sqrt(x**2+y**2+(z1-z2c)**2)) 
+            
+            scale=(z1+z2)/(z1-z2c)
+            xx=np.linspace(Min-x*scale,Max-x*scale,n)    
+            yy=np.linspace(Min-y*scale,Max-y*scale,n)  
+            yy=np.rot90([yy])
+            
+            theta=np.arctan(np.sqrt(xx**2+yy**2)/(z2+z2c))               
+            pattern=mie_interpol(theta)
+    
+            pattern/=np.max(pattern)                 
+    
+            xx=np.linspace(Min-x,Max-x,n)
+            yy=np.linspace(Min-y,Max-y,n)
+            yy=np.rot90([yy])
+            RR3=np.sqrt(xx**2+yy**2+(z2+z2c)**2)
+            
+            e10s+=e10*np.exp(1j*k*RR3)/RR3*pattern
+        return(e10s)      
+        
+    
+    if(numSource!=1):
+        if(cores>numSource):
+            cores=numSource
+        pool=ThreadPool(processes=cores)
+        sl=int(numSource/cores)
+        res=np.zeros((cores,px,px))
+        proc=[]
+        for i in range(cores):
+            print(i*sl,(i+1)*sl)
+            proc.append(pool.apply_async(thread, (beamlist[i*sl:(i+1)*sl],
+                                                        ext,
+                                                        px,
+                                                        z1,
+                                                        z2,
+                                                        scatlist,
+                                                        mie_interpol)))
+        for i in range(cores):
+            res[i]=proc[i].get()
+        
+        img=np.sum(res,axis=0)
+        img/=np.max(img)    
+        
+    if(numSource==1):
+        if(cores>numScat):
+            cores=numScat
+        pool=ThreadPool(processes=cores)
+        sl=int(numScat/cores)
+        res=np.zeros((cores,px,px),dtype='complex128')
+        proc=[]
+        for i in range(cores):
+            proc.append(pool.apply_async(cthread, (scatlist[i*sl:(i+1)*sl],
+                                                        ext,
+                                                        px,
+                                                        z1,
+                                                        z2,
+                                                        k,
+                                                        mie_interpol)))
+        for i in range(cores):
+            res[i]=proc[i].get()
+        
+        e10s=np.sum(res,axis=0)
+    
+    #calculing the initial field of the one particle, interference with all the scattered waves      
+        Min,Max,n=-ext/2,ext/2,px   
+        xx=np.linspace(Min,Max,n)
+        yy=np.linspace(Min,Max,n)
+        yy=np.rot90([yy])
+        RR2=np.sqrt(xx**2+yy**2+(z1+z2)**2)
+        e2=np.exp(1j*k*RR2)/RR2 
+
+        
+        img=np.abs(e10s+e2)**2-np.abs(e2)**2-np.abs(e10s)**2
+        
+        img/=np.max(img)
+
+    
+    return(img)

@@ -8,7 +8,6 @@ from srwlib import *
 import pickle as pk
 import os
 import h5py
-from scipy.special import kv
 from scipy.constants import c,h,e,electron_mass
 import matplotlib.pyplot as plt
 
@@ -28,17 +27,9 @@ ext=1e-3
 px=int(2**10)
    
 #Computing   
-cores=4
+cores=8
 resize=2 #resizing within the SRW calculation of the wavefront
-slices=16   #cuts the calculation in slices to reduces RAM peak
-
-electron=0.5109989500015e6
-energy=45.6e9
-radius=10760
-magnet=23.94
-magfield=14.1*1e-3
-gamma=energy/electron
-softedge=0.1
+slices=cores   #cuts the calculation in slices to reduces RAM peak
 
 #Undulator params
 def getUndK(gap_um):
@@ -124,6 +115,7 @@ def wfrjob(xpos,ypos,ext,xStart,xFin,xpx,ypx,slicenum,resize):
     
     srwl.CalcElecFieldSR(wfr, par, magFldCnt, arPrecSR)   
 
+    #This resizing function interpolates points in the wavefront
     if(resize!=1):
         srwl.ResizeElecField(wfr,'c',[0,1,resize,1,resize])
     
@@ -174,3 +166,5 @@ for k in range(slices):
 print("Collecting and dumping in ",time.time()-a)  
 
 print(time.time()-a)
+
+plt.imshow(np.abs(wavefront[0]))

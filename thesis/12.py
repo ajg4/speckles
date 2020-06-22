@@ -36,9 +36,13 @@ paths=[]
 # paths.append(['/home/alex/Desktop/Lab/20x_mag/7/',70])
 # paths.append(['/home/alex/Desktop/Lab/20x_mag/10/',100])
 
+# est_zoom=11
+# paths.append(['/home/alex/Desktop/Lab/10x_mag/9/',90])
+# paths.append(['/home/alex/Desktop/Lab/10x_mag/10/',100])
+
 est_zoom=11
-paths.append(['/home/alex/Desktop/Lab/10x_mag/9/',90])
-paths.append(['/home/alex/Desktop/Lab/10x_mag/10/',100])
+paths.append(['/home/alex/Desktop/Lab2/10x_mag/6/',60])
+paths.append(['/home/alex/Desktop/Lab2/10x_mag/7/',70])
 
 
 zoom_list=[]
@@ -51,11 +55,9 @@ for i in range(len(paths)):
             im = np.array(Image.open(paths[i][0]+files[j]))
             im=im[:pxx,150:pxx+150]
             img[j]=im
-            # print("lp/mm:",paths[i][1]," number:",j)
+            # print("lp/mm:",paths[i][1]," number:",j)   
             
-            
-            
-            cross=im[:,0]
+            cross=im[0,:]
             lps=extx*paths[i][1]*1e3/est_zoom
             
             est_freq=2*np.pi*lps/extx  
@@ -123,7 +125,7 @@ def exp_speckles(path, pxx,pxy,cores):
     return(wavim,wavimft)
 
 # base_path='/home/alex/Desktop/Lab/10x_1um/'
-base_path='/home/alex/Desktop/Lab/10x_05um/'
+# base_path='/home/alex/Desktop/Lab/10x_05um/'
 # base_path='/home/alex/Desktop/Lab/20x_1um/'
 # base_path='/home/alex/Desktop/Lab/20x_05um/'
 # base_path='/home/alex/Desktop/Lab/20x_1um/w'
@@ -131,7 +133,12 @@ base_path='/home/alex/Desktop/Lab/10x_05um/'
 
 # dsts=[0]
 # dsts=[0,1,2,3,4,5]
-dsts=[0,1,2,3,4,5,6,7,8,9,10,15,18]
+# dsts=[0,1,2,3,4,5,6,7,8,9,10,15,18]
+
+
+base_path='/home/alex/Desktop/Lab2/10x_1um/'
+dsts=[1.2,1,0.75,0.5,0.25,0,-0.25,-0.5,-0.75,-1]
+
 cpaths=[]
 for i in range(len(dsts)):
     cpaths.append(base_path+str(dsts[i])+"/")
@@ -166,8 +173,11 @@ for i in range(len(cpaths)):
 # q3=np.linspace(0,pxx/(extx/zoom)/2,int(pxx/2))
 
 
+pk.dump([q,cyl,dsts],open('/home/alex/Desktop/Lab2/pks/10x1umcyl.pk', "wb"))
+
+
 # pk.dump([q,cyl,dsts],open('/home/alex/Desktop/Lab/pks/10x1umcyl.pk', "wb"))
-pk.dump([q,cyl,dsts],open('/home/alex/Desktop/Lab/pks/10x05umcyl.pk', "wb"))
+# pk.dump([q,cyl,dsts],open('/home/alex/Desktop/Lab/pks/10x05umcyl.pk', "wb"))
 
 # pk.dump([q,cyl,dsts],open('/home/alex/Desktop/Lab/pks/20x1umcyl.pk', "wb"))
 # pk.dump([q,cyl,dsts],open('/home/alex/Desktop/Lab/pks/20x05umcyl.pk', "wb"))
@@ -213,7 +223,9 @@ pk.dump([lp_x,lp_y],open('/home/alex/Desktop/Lab/pks/20xlp.pk', "wb"))
     
 #%% slant edge
 
-path='/home/alex/Desktop/Lab/10x_slant/'
+path='/home/alex/Desktop/Lab2/10x_slant/'
+
+# path='/home/alex/Desktop/Lab/10x_slant/'
 # path='/home/alex/Desktop/Lab/20x_slant/'
 
 files = [f for f in listdir(path) if isfile(join(path, f))]
@@ -224,6 +236,9 @@ for j in range(len(files)):
         print("slant edge ",j)
         im = np.array(Image.open(path+files[j]))
         im=im[:pxx,150:pxx+150]
+        
+        # plt.figure(str(files[j]))
+        # plt.imshow(im)
            
         img=im/np.max(im)
         
@@ -234,14 +249,55 @@ for j in range(len(files)):
             img=np.flip(img)
             img2=np.flip(img2)
         
+        
+        y_axis=np.arange(pxy)
+        
         clist=np.empty((pxy))
         for i in range(pxy):
-            clist[i]=img2[i].tolist().index(1)
+            clist[i]=img2[i].tolist().index(1)        
+        z = np.polyfit(y_axis, clist, 1)
         
-        z = np.polyfit(np.arange(pxy), clist, 1)
-        p=np.poly1d(z)
+        
+        #############################
+        p=np.poly1d(z)      
+        fit=p(y_axis)
+        
+
+        cut=0.2
+        ausr=np.where(fit-np.std(clist)*cut<clist)
+
+        # plt.figure(str(j)+"1")        
+        # plt.plot(y_axis,fit,label="fit")
+        # plt.plot(y_axis,clist,label="clist")
+        # plt.plot(y_axis,fit-np.std(clist)*cut,label="fit - std")
+        # plt.plot(y_axis[ausr],clist[ausr],label="not to be ignored")  
+        # plt.legend()
+        
+        y_axis2=y_axis[ausr]
+        clist2=clist[ausr]
+        z = np.polyfit(y_axis2, clist2, 1)
+        p=np.poly1d(z)      
+        fit=p(y_axis2)
+        
+        cut=0.2
+        ausr=np.where(fit-np.std(clist2)*cut<clist2)
+
+        # plt.figure(str(j)+"2")           
+        # plt.plot(y_axis2,fit,label="fit")
+        # plt.plot(y_axis2,clist2,label="clist")
+        # plt.plot(y_axis2,clist2-np.std(clist2)*cut,label="clist - std")
+        # plt.plot(y_axis2[ausr],clist2[ausr],label="not to be ignored")  
+        # plt.legend()   
+        
+        y_axis3=y_axis2[ausr]
+        clist3=clist2[ausr]
+        
+        z = np.polyfit(y_axis3, clist3, 1) 
+        
+        #################################
         
         alpha=np.arctan(z[0])
+        print(alpha)
         
         pr=np.empty((2,pxx*pxy))
         k=0
@@ -280,8 +336,10 @@ for j in range(len(files)):
 
 xfreq=np.linspace(1/((x[-1]-x[0])*extx/pxx/zoom),bins*zoom*pxx/(x[-1]-x[0])/extx/2,hbins)
 
+pk.dump([xfreq,syl],open('/home/alex/Desktop/Lab2/pks/10xslantsyl.pk', "wb"))
+
 pk.dump([xfreq,syl],open('/home/alex/Desktop/Lab/pks/10xslantsyl.pk', "wb"))
-# pk.dump([xfreq,syl],open('/home/alex/Desktop/Lab/pks/20xslantsyl.pk', "wb"))
+pk.dump([xfreq,syl],open('/home/alex/Desktop/Lab/pks/20xslantsyl.pk', "wb"))
 
 # %%
 # q,cyl,dsts=pk.load(open('/home/alex/Desktop/Lab/pks/10x1umcyl.pk', "rb"))
@@ -290,13 +348,19 @@ pk.dump([xfreq,syl],open('/home/alex/Desktop/Lab/pks/10xslantsyl.pk', "wb"))
 
 # q,wyl,dsts=pk.load(open('/home/alex/Desktop/Lab/pks/10x1umwyl.pk', "rb"))
 
-q,cyl,dsts=pk.load(open('/home/alex/Desktop/Lab/pks/20x1umcyl.pk', "rb"))
-q2,cyl2,dsts2=pk.load(open('/home/alex/Desktop/Lab/pks/20x05umcyl.pk', "rb"))
-xfreq,syl=pk.load(open('/home/alex/Desktop/Lab/pks/20xslantsyl.pk', "rb"))
+# q,cyl,dsts=pk.load(open('/home/alex/Desktop/Lab/pks/20x1umcyl.pk', "rb"))
+# q2,cyl2,dsts2=pk.load(open('/home/alex/Desktop/Lab/pks/20x05umcyl.pk', "rb"))
+# xfreq,syl=pk.load(open('/home/alex/Desktop/Lab/pks/20xslantsyl.pk', "rb"))
 
-q,wyl,dsts=pk.load(open('/home/alex/Desktop/Lab/pks/20x1umwyl.pk', "rb"))
+# q,wyl,dsts=pk.load(open('/home/alex/Desktop/Lab/pks/20x1umwyl.pk', "rb"))
 
-lp_x,lp_y=pk.load(open('/home/alex/Desktop/Lab/pks/20xlp.pk', "rb"))
+# lp_x,lp_y=pk.load(open('/home/alex/Desktop/Lab/pks/20xlp.pk', "rb"))
+
+
+q,cyl,dsts=pk.load(open('/home/alex/Desktop/Lab2/pks/10x1umcyl.pk', "rb"))
+xfreq,syl=pk.load(open('/home/alex/Desktop/Lab2/pks/10xslantsyl.pk', "rb"))
+
+
 
 # brenn=75e-3
 # radius=25.4e-3/2
@@ -337,18 +401,18 @@ for i in linerange:
     plt.plot(q*1e-6,cyl[i]/norm_temp*norm_c,label="1um colloids at z="+str(dsts[i]+0.7)+"mm",color="tab:green",alpha=np.linspace(1,0.2,len(cyl))[i])
     # break
 
-for i in linerange2:
-    norm_temp=cyl2[i][idx_c]
-    plt.plot(q2*1e-6,cyl2[i]/norm_temp*norm_c,label="0.5um colloids at z="+str(dsts2[i]+0.7)+"mm",color="tab:red",alpha=np.linspace(1,0.2,len(cyl2))[i])
-    # break
+# for i in linerange2:
+#     norm_temp=cyl2[i][idx_c]
+#     plt.plot(q2*1e-6,cyl2[i]/norm_temp*norm_c,label="0.5um colloids at z="+str(dsts2[i]+0.7)+"mm",color="tab:red",alpha=np.linspace(1,0.2,len(cyl2))[i])
+#     # break
 
-idx_w = (np.abs(q - 0.1*1e6)).argmin()
-norm_w=wyl[0][idx_w]
+# idx_w = (np.abs(q - 0.1*1e6)).argmin()
+# norm_w=wyl[0][idx_w]
 
-for i in linerange:
-    norm_temp=wyl[i][idx_w]
-    plt.plot(q*1e-6,wyl[i]/norm_temp*norm_w,label="water at z="+str(dsts[i]+0.7)+"mm",color="tab:blue",alpha=np.linspace(1,0.2,len(wyl))[i])
-    # break
+# for i in linerange:
+#     norm_temp=wyl[i][idx_w]
+#     plt.plot(q*1e-6,wyl[i]/norm_temp*norm_w,label="water at z="+str(dsts[i]+0.7)+"mm",color="tab:blue",alpha=np.linspace(1,0.2,len(wyl))[i])
+#     # break
 
 idx_s = (np.abs(xfreq - 0.15*1e6)).argmin()
 norm_s=syl[0][idx_s]
@@ -360,7 +424,7 @@ for i in range(len(syl)):
     sy=syl[i][:cut]
     sy=sy/sy[idx_s]*norm_s
     sy_tot.append(sy)
-    # plt.plot(sx*1e-6,sy)
+    plt.plot(sx*1e-6,sy)
 
 sy_plot=np.mean(sy_tot,axis=0)
 sy_plot=sy_plot/sy_plot[idx_s]*norm_c
@@ -368,15 +432,15 @@ sy_plot=sy_plot/sy_plot[idx_s]*norm_c
 
 plt.plot(sx*1e-6,sy_plot,label="slanted edge",color="tab:purple")
 
-idx_lp = (np.abs(lp_x - 0.15*1e6)).argmin()
-norm_lp=lp_y[idx_lp]
-lp_y_plot=lp_y/norm_lp*norm_c
+# idx_lp = (np.abs(lp_x - 0.15*1e6)).argmin()
+# norm_lp=lp_y[idx_lp]
+# lp_y_plot=lp_y/norm_lp*norm_c
 
-plt.plot(lp_x*1e-6,lp_y_plot,label="line pairs",color="black")
+# plt.plot(lp_x*1e-6,lp_y_plot,label="line pairs",color="black")
 
 plt.xlabel(r"spatial frequency $[\mu m^{-1}]$")
 plt.ylabel("power spectrum")
-plt.yscale("log")
+# plt.yscale("log")
 # plt.xscale("log")
 plt.xlim(-0.05,1.5)
 plt.ylim(1e-7,1)

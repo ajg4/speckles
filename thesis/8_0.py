@@ -9,61 +9,62 @@ import pickle as pk
 import os
 import h5py
 from helper import bhmie
+from scipy.constants import h,c,e
+from scipy import interpolate
 #%%  
 #jobId0=int(sys.argv[1]) #for using the batch cluster
 jobId0=1
-for jobtask in range(1):
+
+path='/home/alex/Desktop/temp_res/'
+file="img_final.p"
+
+#Beam
+sigmax=150e-6
+sigmay=10e-6
+lam=1e-10
+fwhmk=1e-3     
+
+#Setup
+z1=100
+z2=1.1
+ext=1e-3        
+px=int(2**10)
+   
+#Colloids
+colloid_radius=1e-6
+numScat=1
+
+#Mie
+points=1000
+rad=np.arctan(ext/z2)*1.5
+refr=1 - 1.28e-6 + 2.49e-09*1j
+
+a=bhmie(lam,colloid_radius,refr,points,rad)
+mie=np.abs(a[0])
+mie=mie/np.max(mie)
+theta=np.linspace(0,rad,points)
+
+mie_interpol = interpolate.interp1d(theta, mie)
+
+#Computing   
+cores=4
+resize=4 #resizing within the SRW calculation of the wavefront
+slices=4   #cuts the calculation in slices to reduces RAM peak
+    
+#%%  
+for particle in range(2):
     ttotal=time.time()
-    
-    jobId=str(jobId0)+"_"+str(jobtask)    
-#    path='./'
-    path='/home/alex/Desktop/temp_res'
-#    path='/home/agoetz/Desktop/'
-    file="img_final.p"
-
-    #Beam
-    sigma=5e-6
-    lam=6e-11
-    fwhmlam=0.2    
-    numSource=1   
-    
-    #Setup
-    z1=100
-    z2=20
-    ext=4e-3        
-    px=int(2**10)
-       
-    #Colloids
-    colloid=2e-6
-    numScat=1
-    
-    #Computing   
-    cores=16
-    resize=4 #resizing within the SRW calculation of the wavefront
-    slices=16   #cuts the calculation in slices to reduces RAM peak
-    downsamplefactor=1 #downsample final image before combining of slices
-      
-    #%%
-    if((px/slices)%resize!=0):
-        print("resize odd!")
-    if((px/slices)%downsamplefactor!=0):
-        print("downsample odd!")
-    if(slices<cores):
-        print("put more slices than cores..")
-    
-    #%%       
-    k=2*np.pi/lam
-    sigmaC=lam*(z1+z2)/sigma/2/np.pi
-    sigmaS=0.4793*lam*z2/colloid
-    sigmaD=np.sqrt(1/(sigmaC**(-2)+sigmaS**(-2)))
-
+    jobId=str(jobId0)+"_"+str(particle)   
+     
     np.random.seed(jobId0*int(1e10*(time.time()%0.0001)))
-    lam=lam+np.random.standard_normal()*lam*(fwhmlam)/2.35
-    print("Wavelength [m] "+str(lam))   
-
+    k=2*np.pi/lam
+    k=k+np.random.standard_normal()*k*(fwhmk)/2.35
+    lam=2*np.pi/k
     
-    xpos=np.random.standard_normal()*sigma
-    ypos=np.random.standard_normal()*sigma
+    print("Wavelength [m] "+str(lam))   
+    
+    xpos=np.random.standard_normal()*sigmax
+    ypos=np.random.standard_normal()*sigmay
     print("Particle position [um] ",xpos*1e6,ypos*1e6)
     
     np.random.seed(1)
@@ -71,10 +72,8 @@ for jobtask in range(1):
     scatlist=np.reshape((np.random.rand(numScat*2)*0.6*ext-0.3*ext),(numScat,2))
     #scatlist=np.reshape((np.random.rand(numScat*2)*1.0*ext-0.5*ext),(numScat,2))
     #%%Functions
-    def wfrjob(xpos,ypos,ext,xStart,xFin,xpx,ypx,scatlist,sigmaS,slicenum,resize):
-        h=6.62607004e-34
-        c=299792458.0
-        e=1.6021766208e-19
+    def wfrjob(xpos,ypos,ext,xStart,xFin,xpx,ypx,scatlist,slicenum,resize):
+        from scipy.constants import h,c,e
         xpx=int(xpx/resize)
         ypx=int(ypx/resize)  
         #***********Bending Magnet
@@ -162,23 +161,9 @@ for jobtask in range(1):
                 phases[i]=e[idy,idx]
         
         pk.dump(phases,open(path+str(jobId)+"_"+str(slicenum)+"_"+"phases.p","wb"))    
-        
-    def sampler(file,downsamplefactor,pxd,xpx2):
-    
-        dat = pk.load(open(file,"rb"))
-        os.remove(file)
-      
-        img2=np.zeros((pxd,xpx2))
-        for i in range(xpx2):
-            for j in range(pxd):
-                xstart=downsamplefactor*(i)
-                xfin=downsamplefactor*(i+1)
-                yfin=downsamplefactor*(j)
-                ystart=downsamplefactor*(j+1)
-                img2[j,i]=np.sum(dat[yfin:ystart,xstart:xfin])   
-        pk.dump(img2,open(file,"wb"))                
-    
-    def scjob(xpos,ypos,ext,xStart,xFin,xpx,ypx,scatlist,sigmaS,slicenum,phases):
+                      
+
+    def scjob(xpos,ypos,ext,xStart,xFin,xpx,ypx,scatlist,mie_interpol,slicenum,phases):
         e = pk.load(open(path+str(jobId)+"_"+str(slicenum)+"_"+"wf.p","rb") )
         os.remove(path+str(jobId)+"_"+str(slicenum)+"_"+"wf.p")
            
@@ -202,10 +187,12 @@ for jobtask in range(1):
             rs=np.sqrt((xx-x)**2+(yy-y)**2+z2**2)
             
             ra=np.sqrt((xx-x1)**2+(yy-y1)**2)
-
-            airy=np.exp(-0.5*(ra/sigmaS)**2)
+    
+            # airy=np.exp(-0.5*(ra/sigmaS)**2)
             
-            es+=phase*np.exp(1j*k*rs)/rs*airy
+            pattern=mie_interpol(np.arctan(ra/z2))
+            
+            es+=phase*np.exp(1j*k*rs)/rs*pattern
            
         img=np.abs(e+es)**2-np.abs(e)**2-np.abs(es)**2
         
@@ -223,7 +210,7 @@ for jobtask in range(1):
         pool = mp.Pool(cores)
         poolInputs=[]
         for i in range(cores):
-            poolInputs.append((xpos,ypos,ext,xlist[j*cores+i][0],xlist[j*cores+i][1],xpx,px,scatlist,sigmaS,(j*cores+i),resize))
+            poolInputs.append((xpos,ypos,ext,xlist[j*cores+i][0],xlist[j*cores+i][1],xpx,px,scatlist,(j*cores+i),resize))
         wfrSplits=pool.starmap(wfrjob,poolInputs)
         pool.close()
         pool.join()
@@ -239,48 +226,29 @@ for jobtask in range(1):
         
     print("Phases collected in ",time.time()-a)       
     #%% Scattering the colloids
+       
     a=time.time()
     for j in range(int(slices/cores)):
     
         pool = mp.Pool(cores)
         poolInputs=[]
         for i in range(cores):
-            poolInputs.append((xpos,ypos,ext,xlist[j*cores+i][0],xlist[j*cores+i][1],xpx,px,scatlist,sigmaS,(j*cores+i),phases))
+            poolInputs.append((xpos,ypos,ext,xlist[j*cores+i][0],xlist[j*cores+i][1],xpx,px,scatlist,mie_interpol,(j*cores+i),phases))
         wfrSplits=pool.starmap(scjob,poolInputs)
         pool.close()
         pool.join()
             
     print("Colloids scattered in ",time.time()-a)  
-    #%% Downsample the images               
-    pxd=int(px/downsamplefactor)
-    xpx2=int(xpx/downsamplefactor)
-    
-    if(downsamplefactor!=1):
-    
-        a=time.time()
-        for j in range(int(slices/cores)):
-            pool = mp.Pool(cores)
-            poolInputs=[]
-            for i in range(cores):
-                print("slice ",j*cores+i)
-                poolInputs.append((path+str(jobId)+"_"+str(j*cores+i)+"_"+"img.p"  ,downsamplefactor,pxd,xpx2))
-            wfrSplits=pool.starmap(sampler,poolInputs)
-            pool.close()
-            pool.join()
-                
-        print("Downsampling in ",time.time()-a)
-        
-    if(downsamplefactor==1):
-        print("No downsampling..")
     #%% Combining images and dummping
+
     a=time.time()
-    imgs=np.zeros((pxd,pxd))
+    imgs=np.zeros((px,px))
     for k in range(slices):
         dat = pk.load(open(path+str(jobId)+"_"+str(k)+"_"+"img.p","rb"))
         os.remove(path+str(jobId)+"_"+str(k)+"_"+"img.p")
         
-        imgs[:,k*xpx2:(k+1)*xpx2]=dat    
-
+        imgs[:,k*xpx:(k+1)*xpx]=dat    
+    
     hf = h5py.File(path+str(jobId)+"_"+file, 'w')
     hf.create_dataset('dataset_1', data=imgs)
     hf.close()   
