@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import jv
 from helper import defocused_otf, focused_otf
+path='/home/alex/Desktop/'
 
 NA=0.4 #numerical aperture
 lam=550e-9 #maximum emission wavelength of scintillator
@@ -63,7 +64,7 @@ plt.legend()
 
 
 plt.tight_layout()
-plt.savefig("Figure_14.svg",format="svg")
+plt.savefig(path+"Figure_14.svg",format="svg")
     
 
 

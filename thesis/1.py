@@ -2,6 +2,7 @@ import numpy as np
 from scipy.special import kv
 from scipy.constants import c,h,epsilon_0,e
 import matplotlib.pyplot as plt
+path='/home/alex/Desktop/'
 
 z1=100
 z2=20
@@ -67,7 +68,7 @@ plt.ylabel(r"intensity [a.u.]")
 plt.legend()
 
 plt.tight_layout()
-plt.savefig("Figure_1.svg",format="svg")
+plt.savefig(path+"Figure_1.svg",format="svg")
 
 
 

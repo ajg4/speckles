@@ -8,6 +8,7 @@ Created on Mon Apr 13 12:45:06 2020
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
+path='/home/alex/Desktop/'
 
 file_list=[]
 

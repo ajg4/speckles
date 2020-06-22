@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/eos/home-a/agoetz/scripts/SRW/')
+sys.path.insert(0, './srw')
 import time
 import numpy as np
 import multiprocessing as mp
@@ -11,6 +11,7 @@ import h5py
 from scipy.special import kv
 from scipy.constants import c,h,e
 import matplotlib.pyplot as plt
+path='/home/alex/Desktop/'
 
 SMALL_SIZE = 16
 MEDIUM_SIZE = 16
@@ -27,7 +28,6 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
 jobId=1
 
-path='/eos/home-a/agoetz/tempresults/'
 
 file="img_final.p"
 
@@ -251,4 +251,4 @@ ax2.set_ylabel("phase deviation [mrad]")
 
 
 plt.tight_layout()
-plt.savefig("/eos/home-a/agoetz/scripts/thesis/Figure_5.svg",format="svg") 
+plt.savefig("../../Figure_5.svg",format="svg") 

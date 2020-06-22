@@ -350,9 +350,7 @@ def bhmie(lam,radius,refrel,nang,rad):
 
 def the_speckles(sigmax,sigmay,lam,fwhmk,numSource,z1,z2,fwhmz2,ext,px,colloid_radius,numScat,mie_interpol,cores):
     k=2*np.pi/lam
-    colloid_diameter=colloid_radius*2
      
-      
     #replace zeros by small numbers
     if(sigmax==0):
         sigmax=1e-20

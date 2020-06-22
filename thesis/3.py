@@ -3,9 +3,10 @@ import sys
 import matplotlib.pyplot as plt
 from scipy.special import kv
 from scipy.constants import c,h,e
+path='/home/alex/Desktop/'
 
 
-dat = np.genfromtxt('//cern.ch/dfs/Users/a/agoetz/Desktop/corona_work_place/thesis/data/absorption/SiO2_2.csv', delimiter=';')
+dat = np.genfromtxt('../../data/absorption/SiO2_2.csv', delimiter=';')
 x=dat[:,0]*1e3
 omega=x/h*2*np.pi*e
 
@@ -82,7 +83,7 @@ ax1.legend(loc="upper right")
 
 
 plt.tight_layout()
-plt.savefig("Figure_3.svg",format="svg")
+plt.savefig("../../Figure_3.svg",format="svg")
 
 
 

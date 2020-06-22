@@ -11,11 +11,12 @@ import h5py
 from helper import bhmie
 from scipy.constants import h,c,e
 from scipy import interpolate
+path='/home/alex/Desktop/'
 #%%  
 #jobId0=int(sys.argv[1]) #for using the batch cluster
 jobId0=1
 
-path='/home/alex/Desktop/temp_res/'
+
 file="img_final.p"
 
 #Beam
@@ -52,7 +53,7 @@ resize=4 #resizing within the SRW calculation of the wavefront
 slices=4   #cuts the calculation in slices to reduces RAM peak
     
 #%%  
-for particle in range(2):
+for particle in range(20):
     ttotal=time.time()
     jobId=str(jobId0)+"_"+str(particle)   
      

@@ -10,14 +10,12 @@ import matplotlib.pyplot as plt
 from scipy.special import jv
 from PIL import Image
 from scipy import interpolate
+path='/home/alex/Desktop/'
 
 
-image=Image.open('//cern.ch/dfs/Users/a/agoetz/Desktop/corona_work_place/thesis/absen.png')
+image=Image.open(path+'data/yag/absen.png')
 im_arr=np.array(image)
 im_arr=im_arr[:,:,:]
-
-
-
 
 
 x1=np.array([30,25,20,17.01,16.99,15,12.4,10,7.7,6.1,4.6,3,2.64,2.2,1.8,0])
@@ -114,4 +112,4 @@ plt.ylabel('absorption')
 
 
 plt.tight_layout()
-plt.savefig("Figure_15.svg",format="svg")
+plt.savefig(path+"Figure_15.svg",format="svg")

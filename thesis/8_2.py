@@ -4,13 +4,13 @@ import helper
 import matplotlib.pyplot as plt
 import h5py
 from helper import radial_profile, sector_profile,running_mean
+path='/home/alex/Desktop/'
 
 #%%  
 #jobId0=int(sys.argv[1]) #for using the batch cluster
 jobId0=0
 
-path='/home/alex/Desktop/temp_res/'
-file="img_final2.p"
+file="img_final.p"
 
 #Beam
 sigmax=150e-6

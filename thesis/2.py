@@ -13,6 +13,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 import sys
 from helper import bhmie
+path='/home/alex/Desktop/'
 
 points=1000
 rad=np.pi/2/10000*1.3
@@ -71,7 +72,7 @@ plt.legend()
 
 
 plt.tight_layout()
-plt.savefig("Figure_2.svg",format="svg")
+plt.savefig("../../Figure_2.svg",format="svg")
 
 #%% Comparison of Mie and Van de Hulst exstinction cross section
 

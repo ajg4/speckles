@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/eos/home-a/agoetz/scripts/SRW/')
+sys.path.insert(0, './srw')
 import time
 import numpy as np
 import multiprocessing as mp
@@ -9,13 +9,12 @@ import pickle as pk
 import os
 import h5py
 import matplotlib.pyplot as plt
+path='/home/alex/Desktop/'
 #%%  
 #jobId0=int(sys.argv[1]) #for using the batch cluster
 numSource=500
 jobId0=1
    
-#path='/eos/home-a/agoetz/tempresults/'
-path='/home/agoetz/Desktop/'
 file="img_final.p"
 
 for jobtask in range(numSource):
@@ -224,7 +223,7 @@ ax2.set_ylabel("deviation")
 
 
 plt.tight_layout()
-plt.savefig("/eos/home-a/agoetz/scripts/thesis/Figure_6.svg",format="svg") 
+plt.savefig("../../Figure_6.svg",format="svg") 
 
 
 

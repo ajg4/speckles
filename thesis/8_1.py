@@ -3,11 +3,11 @@ import numpy as np
 from helper import the_speckles,bhmie
 import h5py
 from scipy import interpolate
+path='/home/alex/Desktop/'
 #%%  
 #jobId0=int(sys.argv[1]) #for using the batch cluster
 jobId0=0
 
-path='/home/alex/Desktop/temp_res/'
 file="img_final2.p"
 
 #Beam
@@ -15,7 +15,7 @@ sigmax=150e-6
 sigmay=10e-6
 lam=1e-10
 fwhmk=1e-3
-numSource=int(2**4)     
+numSource=int(2**8)     
 
 #Setup
 z1=100

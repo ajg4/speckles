@@ -16,6 +16,7 @@ from os import listdir
 from os.path import isfile, join
 from multiprocessing.pool import ThreadPool
 import gc
+path='/home/alex/Desktop/'
 
 def radial_profile(data,center):
     y,x = np.indices((data.shape))
