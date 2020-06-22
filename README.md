@@ -16,6 +16,7 @@ Several scripts to reproduce the plots of my master thesis, including the SRW si
 - 7.py ... comparison of the phase of synchtrotron radiation with an analytic model (vertical)
 - 8_0.py ... simulation of speckles with SRW and an analytic scattering model
 - 8_1.py ... simulation of speckles with an analytic synchrotron radiation model and an analytic scattering model
+- 8_2.py ... postprocessing of simulations output and comparision to theoretical prediction
 - 9.py ... effect of spatial filtering
 - 10.py ... MTF for incoherent light
 - 11.py ... a typical speckle pattern
