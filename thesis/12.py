@@ -9,13 +9,11 @@ from helper import radial_profile, focused_otf,bhmie,bhmie2
 from scipy import interpolate
 from scipy.optimize import curve_fit
 import pickle as pk
+from scipy.special import jv
 path='/home/alex/Desktop/'
 
 #%%
 cores=4
-lam=632e-9
-k=2*np.pi/lam
-
 #%% magnification
 
 extx=7.2e-3
@@ -27,7 +25,7 @@ def fsin(x,w,a,b,c):
     out=np.sin(x*w+c)*a+b
     return(out)
     
-x=np.linspace(0,extx,pxx)   
+x=np.linspace(0,exty,pxy)   
 
 paths=[]
 
@@ -36,18 +34,18 @@ paths=[]
 # paths.append([path+'data/mtf/far/20x_mag/7/',70])
 # paths.append([path+'data/mtf/far/20x_mag/10/',100])
 
-# est_zoom=21
-# paths.append([path+'data/mtf/near/20x_mag/9/',90])
-# paths.append([path+'data/mtf/near/20x_mag/10/',100])
+est_zoom=21
+paths.append([path+'data/mtf/near/20x_mag/9/',90])
+paths.append([path+'data/mtf/near/20x_mag/10/',100])
 
 
 # est_zoom=11
 # paths.append([path+'data/mtf/far/10x_mag/9/',90])
 # paths.append([path+'data/mtf/far/10x_mag/10/',100])
 
-est_zoom=11
-paths.append([path+'data/mtf/near/10x_mag/6/',60])
-paths.append([path+'data/mtf/near/10x_mag/7/',70])
+# est_zoom=11
+# paths.append([path+'data/mtf/near/10x_mag/6/',60])
+# paths.append([path+'data/mtf/near/10x_mag/7/',70])
 
 
 zoom_list=[]
@@ -61,7 +59,7 @@ for i in range(len(paths)):
             img[j]=im
             # print("lp/mm:",paths[i][1]," number:",j)   
             
-            cross=im[0,:]
+            cross=im[:,0]
             lps=extx*paths[i][1]*1e3/est_zoom
             
             est_freq=2*np.pi*lps/extx  
@@ -154,11 +152,12 @@ def exp_speckles(path, pxx,pxy,cores):
 
 
 # base_path=path+'data/mtf/near/10x_1um/'
-base_path=path+'data/mtf/near/10x_05um/'
-# base_path=path+'data/mtf/near/20x_1um/'
+# base_path=path+'data/mtf/near/10x_05um/'
+base_path=path+'data/mtf/near/20x_1um/'
+# base_path=path+'data/mtf/near/20x_1um2/'
 # base_path=path+'data/mtf/near/20x_05um/'
-dsts=[-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,1.2]
-# dsts=[0,0.25,0.5,0.75,1,1.2]
+# dsts=[-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,1.2]
+dsts=[0,0.25,0.5,0.75,1,1.2]
 
 cpaths=[]
 for i in range(len(dsts)):
@@ -193,8 +192,11 @@ for i in range(len(cpaths)):
 
 
 # pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/10x1umcyl.pk', "wb"))
-pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/10x05umcyl.pk', "wb"))
-# pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/20x1umcyl.pk', "wb"))
+# pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/10x05umcyl.pk', "wb"))
+pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/20x1umcyl.pk', "wb"))
+# pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/20x1umcyl2.pk', "wb"))
+# pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/20x05umcyl.pk', "wb"))
+
 
 
 # pk.dump([q,cyl,dsts],open('/home/alex/Desktop/Lab/pks/10x1umcyl.pk', "wb"))
@@ -208,50 +210,24 @@ pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/10x05umcyl.pk', "wb"))
 
 
 # %%
-
 extx=5.4e-3
 pxx=1236
 exty=5.4e-3
 pxy=1236
 
-from scipy.special import jv
-
-# brenn=75e-3
-# radius=25.4e-3/2
-# alpha=np.arctan(radius/brenn)
-# NA=np.sin(alpha)*1.458
 
 lam=632e-9
 # NA=0.4
 NA=0.25
-
 cutoff=NA/lam
 
-lam=632e-9
-k=2*np.pi/lam
-
-points=int(pxx*np.sqrt(2)/2)
-z2=1e-3
-x=np.linspace(0,extx/2/zoom,points)
-theta=np.arctan(x/z2)
-
-colloid_radius=0.5e-6
-rad=theta[-1]
-refr=1.5
-a=bhmie(lam,colloid_radius,refr,points,rad)
-mie=np.abs(a[0])
-mie=mie/np.max(mie)
-
-pat=mie*np.cos(x**2*k/2/z2)
-pat2=np.abs(np.fft.fft(pat))[:int(points/2)]
-pat3=pat2/np.max(pat2)
-xpat=np.linspace(1/(extx/zoom),pxx*np.sqrt(2)/(extx/zoom)/2,int(pxx*np.sqrt(2)/4)) 
-
-#%%
 
 q,cyl,dsts=pk.load(open(path+'data/mtf/near/pks/10x1umcyl.pk', "rb"))
-# q2,cyl2,dsts2=pk.load(open(path+'data/mtf/far/pks/10x1umcyl.pk', "rb"))
-SIZE = 10
+q2,cyl2,dsts2=pk.load(open(path+'data/mtf/near/pks/10x05umcyl.pk', "rb"))
+# q,cyl,dsts=pk.load(open(path+'data/mtf/near/pks/20x05umcyl.pk', "rb"))
+# q2,cyl2,dsts2=pk.load(open(path+'data/mtf/near/pks/20x1umcyl2.pk', "rb"))
+
+SIZE = 30
 
 plt.rc('font', size=SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=SIZE)     # fontsize of the axes title
@@ -264,17 +240,22 @@ plt.rc('figure', titlesize=SIZE)  # fontsize of the figure title
 fig=plt.figure('Figure_12.svg',figsize=(20,10))
 
 
-plt.plot(1e-6*xpat,pat3)
-
-norm_pos=0.28
-plt.plot([cutoff*1e-6,cutoff*1e-6],[1,0],label="analytic cutoff with NA="+str(round(NA,3)),color="tab:orange")
-plt.plot([norm_pos,norm_pos],[1,0],label="normalisation position",color="tab:pink")
+norm_pos=0.2
+plt.plot([cutoff*1e-6,cutoff*1e-6],[1,0],label="analytic cutoff with NA="+str(round(NA,3)))
+plt.plot([norm_pos,norm_pos],[1,0],label="normalisation position")
 idx_c = (np.abs(q - norm_pos*1e6)).argmin()
 norm_c=cyl[0][idx_c]
 
+radius=500e-9
+z2=1e-3
+# sigmaq=0.46/(np.sqrt(2)*np.sqrt(2)*2*radius)
+# fac2=q/sigmaq/zoom
+# gaussq=np.exp(-0.5*(fac2**2))
+# gaussq=gaussq/gaussq[idx_c]*norm_c
+# plt.plot(1e-6*q,gaussq)
 
-linerange=[9]
-linerange2=[3]
+linerange=[5]
+linerange2=[5]
 # linerange=np.arange(len(cyl))
 # linerange2=np.arange(len(cyl2))
 
@@ -283,13 +264,12 @@ for i in linerange:
     # plt.plot(q*1e-6,cyl[i]/norm_temp*norm_c,label="1um colloids at z="+str(dsts[i]+0.7)+"mm",color="tab:green",alpha=np.linspace(1,0.2,len(cyl))[i])
     plt.plot(q*1e-6,cyl[i]/norm_temp*norm_c,label="1um colloids at z="+str(dsts[i])+"mm")
 
-    # break
 
-# for i in linerange2:
-#     norm_temp=cyl2[i][idx_c]
-#     # plt.plot(q2*1e-6,cyl2[i]/norm_temp*norm_c,label="0.5um colloids at z="+str(dsts2[i]+0.7)+"mm",color="tab:red",alpha=np.linspace(1,0.2,len(cyl2))[i])
-#     plt.plot(q2*1e-6,cyl2[i]/norm_temp*norm_c,label="0.5um colloids at z="+str(dsts2[i])+"mm",color="tab:red",alpha=np.linspace(1,0.2,len(cyl2))[i])
-#     # break
+for i in linerange2:
+    norm_temp=cyl2[i][idx_c]
+    # plt.plot(q2*1e-6,cyl2[i]/norm_temp*norm_c,label="0.5um colloids at z="+str(dsts2[i]+0.7)+"mm",color="tab:red",alpha=np.linspace(1,0.2,len(cyl2))[i])
+    plt.plot(q2*1e-6,cyl2[i]/norm_temp*norm_c,label="0.5um colloids at z="+str(dsts2[i])+"mm")
+
 
 # idx_w = (np.abs(q - 0.1*1e6)).argmin()
 # norm_w=wyl[0][idx_w]
@@ -300,13 +280,13 @@ for i in linerange:
 #     # break
 
 
-
 plt.xlabel(r"spatial frequency $[\mu m^{-1}]$")
 plt.ylabel("power spectrum")
 plt.yscale("log")
 # plt.xscale("log")
-plt.xlim(-0.05,1.5)
-# plt.ylim(1e-7,1)
+plt.xlim(-0.05,0.6)
+# plt.xlim(-0.05,1)
+plt.ylim(1e-5,1e-1)
 plt.legend(loc="upper right")
 
 plt.tight_layout()

@@ -42,6 +42,7 @@ anom_pattern[0]=anom_pattern[1]
 anom_pattern/=np.max(anom_pattern)
 
 fac2=theta/(0.4793*lam/colloid*np.sqrt(2))
+fac2=theta/(0.46*lam/colloid*np.sqrt(2))
 anom_pattern_gauss=np.exp(-0.5*(fac2**2))
 
 

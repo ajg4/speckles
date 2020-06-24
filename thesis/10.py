@@ -249,7 +249,6 @@ pk.dump([xfreq,syl],open(path+'data/mtf/run0/pks/20xslantsyl.pk', "wb"))
 
 # xfreq,syl=pk.load(open(path+'data/mtf/far/pks/20xslantsyl.pk', "rb"))
 xfreq,syl=pk.load(open(path+'data/mtf/run0/pks/20xslantsyl.pk', "rb"))
-
 lp_x,lp_y=pk.load(open(path+'data/mtf/far/pks/20xlp.pk', "rb"))
 
 # brenn=75e-3
