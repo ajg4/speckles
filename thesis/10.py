@@ -23,13 +23,14 @@ def exp(x,a,b,c):
     temp=np.exp(-x/a)*b+c
     return(temp)
 
-extx=7.2e-3
-pxx=1236#1626
-exty=5.4e-3
-pxy=1236
-zoom=23.65
+
 
 #%% magnification
+
+extx=7.2e-3
+pxx=1626
+exty=5.4e-3
+pxy=1236
 
 def fsin(x,w,a,b,c):
     out=np.sin(x*w+c)*a+b
@@ -39,23 +40,18 @@ x=np.linspace(0,extx,pxx)
 
 paths=[]
 
-est_zoom=21
-paths.append([path+'data/mtf/far/20x_mag/6/',60])
-paths.append([path+'data/mtf/far/20x_mag/7/',70])
-paths.append([path+'data/mtf/far/20x_mag/10/',100])
+
+est_zoom=23.5
+paths.append([path+'data/mtf/run0/20x_lp/10/',100])
+
+# est_zoom=21
+# paths.append([path+'data/mtf/far/20x_mag/6/',60])
+# paths.append([path+'data/mtf/far/20x_mag/7/',70])
+# paths.append([path+'data/mtf/far/20x_mag/10/',100])
 
 # est_zoom=21
 # paths.append([path+'data/mtf/near/20x_mag/9/',90])
 # paths.append([path+'data/mtf/near/20x_mag/10/',100])
-
-
-# est_zoom=11
-# paths.append(['/home/alex/Desktop/Lab/10x_mag/9/',90])
-# paths.append(['/home/alex/Desktop/Lab/10x_mag/10/',100])
-
-# est_zoom=11
-# paths.append([path+'data/mtf/near/10x_mag/6/',60])
-# paths.append([path+'data/mtf/near/10x_mag/7/',70])
 
 
 zoom_list=[]
@@ -64,9 +60,8 @@ for i in range(len(paths)):
     
     img=np.zeros((len(files),pxy,pxx))
     for j in range(len(files)):
-        if(files[i][-4:]=="tiff"):
+        if(files[i][-3:]=="tif"):
             im = np.array(Image.open(paths[i][0]+files[j]))
-            im=im[:pxx,150:pxx+150]
             img[j]=im
             # print("lp/mm:",paths[i][1]," number:",j)   
             
@@ -79,9 +74,9 @@ for i in range(len(paths)):
            
             p0=[est_freq,20,est_mean,5e3]
             par=curve_fit(fsin,x,cross.astype(np.float),p0=p0)
-            # plt.plot(x,fsin(x,*par[0]))
-            # plt.plot(x,fsin(x,*p0))
-            # plt.plot(x,cross)
+            plt.plot(x,fsin(x,*par[0]))
+            plt.plot(x,fsin(x,*p0))
+            plt.plot(x,cross)
             
             freq=par[0][0]
             
@@ -132,13 +127,17 @@ pk.dump([lp_x,lp_y],open(path+'data/mtf/far/pks/20xlp.pk', "wb"))
     
 #%% slant edge
 
-sl_path=path+'data/mtf/far/20x_slant/'
+pxx=1236#1626
+pxy=1236
+
+# sl_path=path+'data/mtf/far/20x_slant/'
+sl_path=path+'data/mtf/run0/20x_slant/'
 
 files = [f for f in listdir(sl_path) if isfile(join(sl_path, f))]
 syl=[]
 
 for j in range(len(files)):
-    if(files[j][-4:]=="tiff"):
+    if(files[j][-3:]=="tif"):
         print("slant edge ",j)
         im = np.array(Image.open(sl_path+files[j]))
         im=im[:pxx,150:pxx+150]
@@ -165,12 +164,12 @@ for j in range(len(files)):
         
         
         #############################
-        p=np.poly1d(z)      
-        fit=p(y_axis)
+        # p=np.poly1d(z)      
+        # fit=p(y_axis)
         
 
-        cut=0.2
-        ausr=np.where(fit-np.std(clist)*cut<clist)
+        # cut=0.2
+        # ausr=np.where(fit-np.std(clist)*cut<clist)
 
         # plt.figure(str(j)+"1")        
         # plt.plot(y_axis,fit,label="fit")
@@ -179,26 +178,26 @@ for j in range(len(files)):
         # plt.plot(y_axis[ausr],clist[ausr],label="not to be ignored")  
         # plt.legend()
         
-        y_axis2=y_axis[ausr]
-        clist2=clist[ausr]
-        z = np.polyfit(y_axis2, clist2, 1)
-        p=np.poly1d(z)      
-        fit=p(y_axis2)
+        # y_axis2=y_axis[ausr]
+        # clist2=clist[ausr]
+        # z = np.polyfit(y_axis2, clist2, 1)
+        # p=np.poly1d(z)      
+        # fit=p(y_axis2)
         
-        cut=0.2
-        ausr=np.where(fit-np.std(clist2)*cut<clist2)
+        # cut=0.2
+        # ausr=np.where(fit-np.std(clist2)*cut<clist2)
 
-        # plt.figure(str(j)+"2")           
-        # plt.plot(y_axis2,fit,label="fit")
-        # plt.plot(y_axis2,clist2,label="clist")
-        # plt.plot(y_axis2,clist2-np.std(clist2)*cut,label="clist - std")
-        # plt.plot(y_axis2[ausr],clist2[ausr],label="not to be ignored")  
-        # plt.legend()   
+        # # plt.figure(str(j)+"2")           
+        # # plt.plot(y_axis2,fit,label="fit")
+        # # plt.plot(y_axis2,clist2,label="clist")
+        # # plt.plot(y_axis2,clist2-np.std(clist2)*cut,label="clist - std")
+        # # plt.plot(y_axis2[ausr],clist2[ausr],label="not to be ignored")  
+        # # plt.legend()   
         
-        y_axis3=y_axis2[ausr]
-        clist3=clist2[ausr]
+        # y_axis3=y_axis2[ausr]
+        # clist3=clist2[ausr]
         
-        z = np.polyfit(y_axis3, clist3, 1) 
+        # z = np.polyfit(y_axis3, clist3, 1) 
         
         #################################
         
@@ -229,7 +228,6 @@ for j in range(len(files)):
         y/=np.max(y)
         
         bins=500
-        
         yh,xh=np.histogram(x,bins=bins,weights=y)
         
         yh/=np.max(yh)
@@ -244,11 +242,14 @@ for j in range(len(files)):
 
 xfreq=np.linspace(1/((x[-1]-x[0])*extx/pxx/zoom),bins*zoom*pxx/(x[-1]-x[0])/extx/2,hbins)
 
-pk.dump([xfreq,syl],open(path+'data/mtf/far/pks/20xslantsyl.pk', "wb"))
+# pk.dump([xfreq,syl],open(path+'data/mtf/far/pks/20xslantsyl.pk', "wb"))
+pk.dump([xfreq,syl],open(path+'data/mtf/run0/pks/20xslantsyl.pk', "wb"))
 
 # %%
 
-xfreq,syl=pk.load(open(path+'data/mtf/far/pks/20xslantsyl.pk', "rb"))
+# xfreq,syl=pk.load(open(path+'data/mtf/far/pks/20xslantsyl.pk', "rb"))
+xfreq,syl=pk.load(open(path+'data/mtf/run0/pks/20xslantsyl.pk', "rb"))
+
 lp_x,lp_y=pk.load(open(path+'data/mtf/far/pks/20xlp.pk', "rb"))
 
 # brenn=75e-3
@@ -266,7 +267,7 @@ q=np.linspace(0,2*cutoff,1000)
 otf_foc=focused_otf(q,NA,lam)
 
 
-SIZE = 10
+SIZE = 30
 
 plt.rc('font', size=SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=SIZE)     # fontsize of the axes title
@@ -281,16 +282,16 @@ fig=plt.figure('Figure_10.svg',figsize=(20,10))
 # for i in range(len(syl)):
 #     plt.plot(xfreq,syl[i])
     
-plt.plot(xfreq,np.mean(syl,axis=0))
-plt.plot(q,otf_foc)
-plt.plot(lp_x,lp_y)
+plt.plot(xfreq*1e-6,np.mean(syl,axis=0),label="slant edge")
+plt.plot(lp_x*1e-6,lp_y,label="line pairs")
+plt.plot(q*1e-6,otf_foc,label="theoretical MTF")
 
 
 plt.xlabel(r"spatial frequency $[\mu m^{-1}]$")
 plt.ylabel("power spectrum")
-plt.yscale("log")
-# plt.xlim(-0.05,1.5)
-# plt.ylim(1e-7,1)
+# plt.yscale("log")
+plt.xlim(-0.05,1.5)
+plt.ylim(-0.1,1.1)
 plt.legend(loc="upper right")
 
 plt.tight_layout()

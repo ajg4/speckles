@@ -221,7 +221,7 @@ ax2.set_ylabel("deviation")
 
 
 plt.tight_layout()
-plt.savefig("../../Figure_7.svg",format="svg") 
+plt.savefig(path+"Figure_7.svg",format="svg") 
 
 
     

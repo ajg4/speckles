@@ -5,24 +5,23 @@ from os import listdir
 from os.path import isfile, join
 from multiprocessing.pool import ThreadPool
 import gc
-from helper import radial_profile, focused_otf
+from helper import radial_profile, focused_otf,bhmie,bhmie2
+from scipy import interpolate
 from scipy.optimize import curve_fit
 import pickle as pk
 path='/home/alex/Desktop/'
 
 #%%
-extx=5.4e-3#7.2e-3
-pxx=1236#1626
-
-exty=5.4e-3
-pxy=1236
-
 cores=4
-
 lam=632e-9
 k=2*np.pi/lam
 
 #%% magnification
+
+extx=7.2e-3
+pxx=1626
+exty=5.4e-3
+pxy=1236
 
 def fsin(x,w,a,b,c):
     out=np.sin(x*w+c)*a+b
@@ -33,9 +32,9 @@ x=np.linspace(0,extx,pxx)
 paths=[]
 
 # est_zoom=21
-# paths.append(['/home/alex/Desktop/Lab/20x_mag/6/',60])
-# paths.append(['/home/alex/Desktop/Lab/20x_mag/7/',70])
-# paths.append(['/home/alex/Desktop/Lab/20x_mag/10/',100])
+# paths.append([path+'data/mtf/far/20x_mag/6/',60])
+# paths.append([path+'data/mtf/far/20x_mag/7/',70])
+# paths.append([path+'data/mtf/far/20x_mag/10/',100])
 
 # est_zoom=21
 # paths.append([path+'data/mtf/near/20x_mag/9/',90])
@@ -43,8 +42,8 @@ paths=[]
 
 
 # est_zoom=11
-# paths.append(['/home/alex/Desktop/Lab/10x_mag/9/',90])
-# paths.append(['/home/alex/Desktop/Lab/10x_mag/10/',100])
+# paths.append([path+'data/mtf/far/10x_mag/9/',90])
+# paths.append([path+'data/mtf/far/10x_mag/10/',100])
 
 est_zoom=11
 paths.append([path+'data/mtf/near/10x_mag/6/',60])
@@ -59,7 +58,6 @@ for i in range(len(paths)):
     for j in range(len(files)):
         if(files[i][-4:]=="tiff"):
             im = np.array(Image.open(paths[i][0]+files[j]))
-            im=im[:pxx,150:pxx+150]
             img[j]=im
             # print("lp/mm:",paths[i][1]," number:",j)   
             
@@ -88,12 +86,21 @@ print("magnification: ",zoom)
 
 #%% speckles mtf
 
+extx=5.4e-3
+pxx=1236
+exty=5.4e-3
+pxy=1236
+
 def furierer(path,files,av,pxx,pxy,coreid):
     imft=np.zeros((pxy,pxx))
     for i in range(len(files)):
-        im = np.array(Image.open(path+files[i]))[:pxx,150:pxx+150]
+        file=Image.open(path+files[i])
+        im = np.array(file)[:pxx,150:pxx+150]
+        file.close()
         cim=im-av
         imft+=np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(cim))))**2
+        # del(im)
+        # gc.collect()  
         # if(coreid==0):
             # print("fft ",i,len(files))
     return(imft)
@@ -105,8 +112,12 @@ def exp_speckles(path, pxx,pxy,cores):
     img=np.zeros((pxy,pxx))
     for i in range(len(files)):
         if(files[i][-4:]=="tiff"):
-            im = np.array(Image.open(path+files[i]))
-            img+=im[:pxx,150:pxx+150]
+            file=Image.open(path+files[i])
+            im = np.array(file)[:pxx,150:pxx+150]
+            file.close()
+            img+=im
+            # del(im)
+            # gc.collect() 
             # print("loaded file ",i,len(files))
     
     cut=len(files)/cores
@@ -142,16 +153,16 @@ def exp_speckles(path, pxx,pxy,cores):
 # dsts=[0,1,2,3,4,5,6,7,8,9,10,15,18]
 
 
-base_path=path+'data/mtf/near/10x_1um/'
+# base_path=path+'data/mtf/near/10x_1um/'
+base_path=path+'data/mtf/near/10x_05um/'
 # base_path=path+'data/mtf/near/20x_1um/'
+# base_path=path+'data/mtf/near/20x_05um/'
 dsts=[-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1,1.2]
 # dsts=[0,0.25,0.5,0.75,1,1.2]
 
 cpaths=[]
 for i in range(len(dsts)):
     cpaths.append(base_path+str(dsts[i])+"/")
-
-
 
 cyl=[]
 for i in range(len(cpaths)):
@@ -181,7 +192,8 @@ for i in range(len(cpaths)):
 # q3=np.linspace(0,pxx/(extx/zoom)/2,int(pxx/2))
 
 
-pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/10x1umcyl.pk', "wb"))
+# pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/10x1umcyl.pk', "wb"))
+pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/10x05umcyl.pk', "wb"))
 # pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/20x1umcyl.pk', "wb"))
 
 
@@ -196,8 +208,13 @@ pk.dump([q,cyl,dsts],open(path+'data/mtf/near/pks/10x1umcyl.pk', "wb"))
 
 
 # %%
-q,cyl,dsts=pk.load(open(path+'data/mtf/near/pks/10x1umcyl.pk', "rb"))
-q2,cyl2,dsts2=pk.load(open(path+'data/mtf/far/pks/10x1umcyl.pk', "rb"))
+
+extx=5.4e-3
+pxx=1236
+exty=5.4e-3
+pxy=1236
+
+from scipy.special import jv
 
 # brenn=75e-3
 # radius=25.4e-3/2
@@ -210,6 +227,30 @@ NA=0.25
 
 cutoff=NA/lam
 
+lam=632e-9
+k=2*np.pi/lam
+
+points=int(pxx*np.sqrt(2)/2)
+z2=1e-3
+x=np.linspace(0,extx/2/zoom,points)
+theta=np.arctan(x/z2)
+
+colloid_radius=0.5e-6
+rad=theta[-1]
+refr=1.5
+a=bhmie(lam,colloid_radius,refr,points,rad)
+mie=np.abs(a[0])
+mie=mie/np.max(mie)
+
+pat=mie*np.cos(x**2*k/2/z2)
+pat2=np.abs(np.fft.fft(pat))[:int(points/2)]
+pat3=pat2/np.max(pat2)
+xpat=np.linspace(1/(extx/zoom),pxx*np.sqrt(2)/(extx/zoom)/2,int(pxx*np.sqrt(2)/4)) 
+
+#%%
+
+q,cyl,dsts=pk.load(open(path+'data/mtf/near/pks/10x1umcyl.pk', "rb"))
+# q2,cyl2,dsts2=pk.load(open(path+'data/mtf/far/pks/10x1umcyl.pk', "rb"))
 SIZE = 10
 
 plt.rc('font', size=SIZE)          # controls default text sizes
@@ -223,6 +264,8 @@ plt.rc('figure', titlesize=SIZE)  # fontsize of the figure title
 fig=plt.figure('Figure_12.svg',figsize=(20,10))
 
 
+plt.plot(1e-6*xpat,pat3)
+
 norm_pos=0.28
 plt.plot([cutoff*1e-6,cutoff*1e-6],[1,0],label="analytic cutoff with NA="+str(round(NA,3)),color="tab:orange")
 plt.plot([norm_pos,norm_pos],[1,0],label="normalisation position",color="tab:pink")
@@ -230,8 +273,8 @@ idx_c = (np.abs(q - norm_pos*1e6)).argmin()
 norm_c=cyl[0][idx_c]
 
 
-linerange=[4,5,6,7,8,9]
-linerange2=[1,2,3]
+linerange=[9]
+linerange2=[3]
 # linerange=np.arange(len(cyl))
 # linerange2=np.arange(len(cyl2))
 
@@ -242,11 +285,11 @@ for i in linerange:
 
     # break
 
-for i in linerange2:
-    norm_temp=cyl2[i][idx_c]
-    # plt.plot(q2*1e-6,cyl2[i]/norm_temp*norm_c,label="0.5um colloids at z="+str(dsts2[i]+0.7)+"mm",color="tab:red",alpha=np.linspace(1,0.2,len(cyl2))[i])
-    plt.plot(q2*1e-6,cyl2[i]/norm_temp*norm_c,label="1um colloids at z="+str(dsts2[i]+0.7)+"mm")
-    # break
+# for i in linerange2:
+#     norm_temp=cyl2[i][idx_c]
+#     # plt.plot(q2*1e-6,cyl2[i]/norm_temp*norm_c,label="0.5um colloids at z="+str(dsts2[i]+0.7)+"mm",color="tab:red",alpha=np.linspace(1,0.2,len(cyl2))[i])
+#     plt.plot(q2*1e-6,cyl2[i]/norm_temp*norm_c,label="0.5um colloids at z="+str(dsts2[i])+"mm",color="tab:red",alpha=np.linspace(1,0.2,len(cyl2))[i])
+#     # break
 
 # idx_w = (np.abs(q - 0.1*1e6)).argmin()
 # norm_w=wyl[0][idx_w]
@@ -262,7 +305,7 @@ plt.xlabel(r"spatial frequency $[\mu m^{-1}]$")
 plt.ylabel("power spectrum")
 plt.yscale("log")
 # plt.xscale("log")
-# plt.xlim(-0.05,1.5)
+plt.xlim(-0.05,1.5)
 # plt.ylim(1e-7,1)
 plt.legend(loc="upper right")
 

@@ -15,19 +15,19 @@ import sys
 from helper import bhmie
 path='/home/alex/Desktop/'
 
-points=1000
+points=10000
 rad=np.pi/2/10000*1.3
 radius=500e-9
 lam=1e-10
 refr=1 - 1.28e-6 + 2.49e-09*1j
 
-#lam=632e-9
-#refr=1.587/1.331
-#rad=np.pi/2
+lam=632e-9
+refr=1.587/1.331
+rad=np.pi/2
 
 
 a=bhmie(lam,radius,refr,points,rad)
-mie=np.abs(a[0])
+mie=np.abs(a[0])#+np.abs(a[1])
 mie=mie/np.max(mie)
 
 theta=np.linspace(0,rad,points)
@@ -36,7 +36,7 @@ colloid=radius*2
 q=colloid*np.pi*np.sin(theta)/lam
 q=np.abs(q)
 
-airy_pattern=np.abs((2*jv(1,q)/q) )              
+airy_pattern=np.abs((2*jv(1,q)/q))              
 anom_pattern=np.abs(jv(3/2,q)*np.sqrt(1/q**3))
 anom_pattern[0]=anom_pattern[1]
 anom_pattern/=np.max(anom_pattern)
@@ -72,7 +72,7 @@ plt.legend()
 
 
 plt.tight_layout()
-plt.savefig("../../Figure_2.svg",format="svg")
+plt.savefig(path+"Figure_2.svg",format="svg")
 
 #%% Comparison of Mie and Van de Hulst exstinction cross section
 

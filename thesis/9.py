@@ -15,11 +15,11 @@ file_list=[]
 pxx=1626
 pxy=1236
 
-# file_list.append('//cern.ch//dfs/Users/a/agoetz/Desktop/corona_work_place/thesis/data/spatialfilter/9mm-10um-50mm.tif')
-file_list.append('//cern.ch//dfs/Users/a/agoetz/Desktop/corona_work_place/thesis/data/spatialfilter/9mm-20um-50mm.tif')
-# file_list.append('//cern.ch//dfs/Users/a/agoetz/Desktop/corona_work_place/thesis/data/spatialfilter/9mm-30um-50mm.tif')
-file_list.append('//cern.ch//dfs/Users/a/agoetz/Desktop/corona_work_place/thesis/data/spatialfilter/9mm-50um-50mm.tif')
-file_list.append('//cern.ch//dfs/Users/a/agoetz/Desktop/corona_work_place/thesis/data/spatialfilter/9mm-50mm.tif')
+# file_list.append(path+'data/spatialfilter/9mm-10um-50mm.tif')
+file_list.append(path+'data/spatialfilter/9mm-20um-50mm.tif')
+# file_list.append(path+'data/spatialfilter/9mm-30um-50mm.tif')
+file_list.append(path+'data/spatialfilter/9mm-50um-50mm.tif')
+file_list.append(path+'data/spatialfilter/9mm-50mm.tif')
 
 ims=np.empty((len(file_list),pxy,pxx))
 
@@ -115,7 +115,7 @@ plt.xlabel("x [mm]")
 plt.ylabel("intensity [a.u.]")
 
 plt.tight_layout()
-plt.savefig("Figure_9.svg",format="svg")
+plt.savefig(path+"Figure_9.svg",format="svg")
 
     
 

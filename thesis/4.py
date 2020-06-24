@@ -246,12 +246,6 @@ srwx_angle/=np.max(srwx_angle)
 srwy_angle-=np.min(srwy_angle)
 srwy_angle/=np.max(srwy_angle)
 
-
-#plt.plot(ih1)
-#plt.plot(srwx_angle)
-
-
-
 #%%
 SMALL_SIZE = 30
 MEDIUM_SIZE = 30
@@ -284,14 +278,7 @@ ax2.legend(loc="upper right")
 ax2.set_ylabel("deviation [%]")
 
 
-
-
 plt.tight_layout()
-plt.savefig("../../Figure_4.svg",format="svg") 
-
-
-
-
-
+plt.savefig(path+"Figure_4.svg",format="svg") 
 
 

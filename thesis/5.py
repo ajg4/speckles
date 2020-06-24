@@ -251,4 +251,4 @@ ax2.set_ylabel("phase deviation [mrad]")
 
 
 plt.tight_layout()
-plt.savefig("../../Figure_5.svg",format="svg") 
+plt.savefig(path+"Figure_5.svg",format="svg") 

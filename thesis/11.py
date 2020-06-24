@@ -34,17 +34,16 @@ exty=5.4e-3
 pxy=1236
 zoom=2.6
 cores=4
-colloidpath='//cern.ch/dfs/Users/a/agoetz/Desktop/corona_work_place/thesis/data/speckles/speckles/10/'
+colloidpath=path+'/data/mtf/near/10x_1um/1.2/'
 
 
 #%%avim and avimft of colloids
 colloidfiles = [f for f in listdir(colloidpath) if isfile(join(colloidpath, f))]
-colloidfiles=colloidfiles[:-1]
 
 img=np.zeros((len(colloidfiles),pxy,pxx))
 
 for i in range(len(colloidfiles)):
-    if(colloidfiles[i][-3:]=="tif"):
+    if(colloidfiles[i][-4:]=="tiff"):
         im = np.array(Image.open(colloidpath+colloidfiles[i]))
         im=im[:pxx,150:pxx+150]
         img[i]=im
@@ -55,7 +54,6 @@ if(cut!=0):
     colloidfiles=colloidfiles[:-cut]
 
 cavim=np.sum(img,axis=0)/len(colloidfiles)
-
 
 
 #%%
@@ -82,5 +80,5 @@ plt.ylabel("y [mm]")
 
 
 plt.tight_layout()
-plt.savefig("Figure_11.svg",format="svg")
+plt.savefig(path+"Figure_11.svg",format="svg")
 

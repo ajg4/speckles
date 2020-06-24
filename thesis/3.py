@@ -83,7 +83,7 @@ ax1.legend(loc="upper right")
 
 
 plt.tight_layout()
-plt.savefig("../../Figure_3.svg",format="svg")
+plt.savefig(path+"Figure_3.svg",format="svg")
 
 
 
