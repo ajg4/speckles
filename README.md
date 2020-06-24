@@ -23,7 +23,8 @@ Several scripts to reproduce the plots of my master thesis, including the SRW si
 - 12.py ... MTF of coherent light
 - 13.py ... MTF for corrected incoherent and coherent light
 - 14.py ... the effect of a defocused system (scinitillator) on the MTF in comparision with a perfectly focused system
-- 15.m ... a CELES Matlab code, for numerically calculating the near field of the scattering at a colloid for xrays (TODO)
+- 15.py ... absorption and conversion rate of the YAG:Ce scintillator (data scraping from png)
+- 16.m ... a CELES Matlab code, for numerically calculating the near field of the scattering at a colloid for xrays (TODO)
 - helper.py ... helper function: focused_otf, defocused_otf, running_mean, sector_profile, radial_profile, bhmie, the_speckles
 - ALBA_srw_sample.py ... sample code to simulate SR at an undulator with ALBA parameters
 
