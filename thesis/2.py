@@ -15,14 +15,15 @@ import sys
 from helper import bhmie
 path='/home/alex/Desktop/'
 
-points=10000
-rad=np.pi/2/10000*1.3
 radius=500e-9
-lam=1e-10
-refr=1 - 1.28e-6 + 2.49e-09*1j
+points=10000
+
+rad=np.pi/2/10000*1.3
+# lam=1e-10
+# refr=1 - 1.28e-6 + 2.49e-09*1j
 
 lam=632e-9
-refr=1.587/1.331
+refr=1.457/1.331
 rad=np.pi/2
 
 
