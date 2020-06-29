@@ -17,6 +17,8 @@ Several scripts to reproduce the plots of my master thesis, including the SRW si
 - 8_0.py ... simulation of speckles with SRW and an analytic scattering model
 - 8_1.py ... simulation of speckles with an analytic synchrotron radiation model and an analytic scattering model
 - 8_2.py ... postprocessing of simulations output and comparision to theoretical prediction
+- 8_3.py ... preparation of a mask for SRW speckle propagation
+- 8_4.py ... simulation of speckles with SRW and SRW propagation
 - 9.py ... effect of spatial filtering
 - 10.py ... MTF for incoherent light
 - 11.py ... a typical speckle pattern
@@ -27,6 +29,9 @@ Several scripts to reproduce the plots of my master thesis, including the SRW si
 - 16.m ... a CELES Matlab code, for numerically calculating the near field of the scattering at a colloid for xrays (TODO)
 - helper.py ... helper function: focused_otf, defocused_otf, running_mean, sector_profile, radial_profile, bhmie, the_speckles
 - ALBA_srw_sample.py ... sample code to simulate SR at an undulator with ALBA parameters
+- condorExecutable ... executable for HTCondor cluster
+- condorSubmit ... submit file for HTCondor cluster
+
 
 
 ### SRW
