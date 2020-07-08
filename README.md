@@ -1,6 +1,6 @@
 # Speckles measurements and simulation at CERN BE-BI-PM
 
-Using the Van Cittert Zerneke theorem the beam size at a synchrotron can be calculated by measuring the coherence of the synchrotron radiation. SRW is used to proof the theorem for an FCC arcdipole and the simulate the speckle pattern produced by a suspension of colloids. The MTF is measured experimentally with help of a lab setup, where no decay of visibility is significant except due to opticial limitations.
+Using the Van Cittert Zernike theorem the beam size at a synchrotron can be calculated by measuring the coherence of the synchrotron radiation. SRW is used to proof the theorem for an FCC arcdipole and the simulate the speckle pattern produced by a suspension of colloids. The MTF is measured experimentally with help of a lab setup, where no decay of visibility is significant except due to opticial limitations.
 
 ## Acquisition
 A script to stream the the output of the Basler camera for live analysis of the speckle pattern. It includes a running mean of the last pictures for subtracting noise from the actual picture, a Fourier transformation, averaged over the last noiseless speckle pattern and a radial average of the power spectrum.
