@@ -31,6 +31,7 @@ Several scripts to reproduce the plots of my master thesis, including the SRW si
 - ALBA_srw_sample.py ... sample code to simulate SR at an undulator with ALBA parameters
 - condorExecutable ... executable for HTCondor cluster
 - condorSubmit ... submit file for HTCondor cluster
+- calcs.py ... several calculations (colloids concentration, energy deposition, parameter optimisation ...)
 
 
 
