@@ -385,31 +385,35 @@ def the_speckles(sigmax,sigmay,lam,fwhmk,numSource,z1,z2,fwhmz2,ext,px,colloid_r
     def thread(beamlist,ext,px,z1,z2,scatlist,mie_interpol):
         img=np.zeros((px,px))
         for j in range(len(beamlist)):
+            xp=beamlist[j][0]
+            yp=beamlist[j][1]
             k=beamlist[j][2]
     
     #calculating the field at the detection plane     
             Min,Max,n=-ext/2,ext/2,px   
             
-            xx=np.linspace(Min-beamlist[j][0],Max-beamlist[j][0],n)
-            yy=np.linspace(Min-beamlist[j][1],Max-beamlist[j][1],n)
+            xx=np.linspace(Min-xp,Max-xp,n)
+            yy=np.linspace(Min-yp,Max-yp,n)
             yy=np.rot90([yy])
             RR2=np.sqrt(xx**2+yy**2+(z1+z2)**2)
             e2=np.exp(1j*k*RR2)/RR2        
             
             e10s=np.zeros((px,px),dtype='complex128')
             for i in range(len(scatlist)):
-                x=scatlist[i][0]
-                y=scatlist[i][1]
+                xs=scatlist[i][0]
+                ys=scatlist[i][1]
                 z2c=scatlist[i][2]
     
     #calculating the phase of the field at the position of a scatterer
-                e10=np.exp(1j*k*np.sqrt(x**2+y**2+(z1-z2c)**2)) 
+                e10=np.exp(1j*k*np.sqrt((xs-xp)**2+(ys-yp)**2+(z1-z2c)**2)) 
                
     #calculating the scattering efficiency of the scatterer
     #taking into account its displaced central point according to the divergence of the beam            
                 scale=(z1+z2)/(z1-z2c)
-                xx=np.linspace(Min-x*scale,Max-x*scale,n)    
-                yy=np.linspace(Min-y*scale,Max-y*scale,n)  
+                xan=((xs-xp)*scale)+xp
+                yan=((ys-yp)*scale)+yp
+                xx=np.linspace(Min-xan,Max-xan,n)    
+                yy=np.linspace(Min-yan,Max-yan,n)  
                 yy=np.rot90([yy])
                 
                 theta=np.arctan(np.sqrt(xx**2+yy**2)/(z2+z2c))               
@@ -418,8 +422,8 @@ def the_speckles(sigmax,sigmay,lam,fwhmk,numSource,z1,z2,fwhmz2,ext,px,colloid_r
                 pattern/=np.max(pattern)                 
     
     #calculating the field of the scattering particle and shapping it by the patter of the scattering efficiency
-                xx=np.linspace(Min-x,Max-x,n)
-                yy=np.linspace(Min-y,Max-y,n)
+                xx=np.linspace(Min-xs,Max-xs,n)
+                yy=np.linspace(Min-ys,Max-ys,n)
                 yy=np.rot90([yy])
                 RR3=np.sqrt(xx**2+yy**2+(z2+z2c)**2)
                 
@@ -430,7 +434,7 @@ def the_speckles(sigmax,sigmay,lam,fwhmk,numSource,z1,z2,fwhmz2,ext,px,colloid_r
             img+=add
         return(img)
     
-    #same thing, but multithreading the scatteres instead of the particles (for one central particle)
+    #same thing, but multithreading the scatteres instead of the electron (for one central radiating electron)
     def cthread(scatlist,ext,px,z1,z2,k,mie_interpol):
         Min,Max,n=-ext/2,ext/2,px
         e10s=np.zeros((px,px),dtype='complex128')

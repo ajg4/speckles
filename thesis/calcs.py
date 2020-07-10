@@ -11,7 +11,7 @@ from scipy.constants import c
 import matplotlib.pyplot as plt
 
 z1=100
-z2=2
+z2=1
 sigma=15e-6
 lam=10e-11
 
@@ -21,7 +21,7 @@ print("maximum colloid radius ",mina)
 minsigkoverk=z2/(z1+z2)**2*2*np.pi/lam*sigma**2*np.sqrt(2/np.log(2))
 print("maximum energy bandwith ",minsigkoverk)
 
-s=1.5
+s=1
 sigmavcz=lam*(z1+z2)/2/np.pi/sigma
 qmax=s*sigmavcz/np.sqrt(2)/lam/z2
 print("maximum frequency ",qmax)

@@ -12,16 +12,16 @@ jobId0=0
 file="img_final2.p"
 
 #Beam
-sigmax=105e-6
-sigmay=15e-6
+sigmax=15e-6
+sigmay=105e-6
 lam=1e-10
 fwhmk=1e-3
-numSource=int(2**8)     
+numSource=int(2**7)     
 
 #Setup
 z1=100
 z2=2
-ext=2.25e-3        
+ext=2.5e-3        
 px=int(2**11)
 fwhmz2=0
    

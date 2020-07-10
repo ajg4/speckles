@@ -13,16 +13,18 @@ jobId0=0
 file="img_final2.p"
 
 #Beam
-sigmax=105e-6
-sigmay=15e-6
+sigmax=15e-6
+sigmay=105e-6
 lam=1e-10
-fwhmk=1e-3     
+fwhmk=1e-3
+numSource=int(2**6)     
 
 #Setup
 z1=100
 z2=2
-ext=2.25e-3        
+ext=2e-3        
 px=int(2**11)
+fwhmz2=0
    
 #Colloids
 colloid_radius=0.25e-6
@@ -91,7 +93,7 @@ plt.savefig(path+"Figure_8_3.svg",format="svg")
 
 
 #%%
-rp,sec_data=sector_profile(imft*1,[int(px/2),int(px/2)],[0,10])
+rp,sec_data=sector_profile(imft*1,[int(px/2),int(px/2)],[0,15])
 
 rp=running_mean(rp,1)
 
@@ -101,7 +103,7 @@ sigmaC=lam*(z1+z2)/2/np.pi/sigmax
 sigmaS=0.4793*lam*z2/(colloid_radius*2)*np.sqrt(2)
 
 sigmak=k*fwhmk/2.35
-sigmaT=np.sqrt(2*z2/sigmak)
+sigmaT=np.sqrt(z2/sigmak*np.sqrt(2/np.log(2)))
 
 sigma_total=np.sqrt(1/( 1/sigmaC**2 + 1/sigmaS**2 + 1/sigmaT**2 ))
 sigma_total2=np.sqrt(1/( 1/sigmaC**2 + 1/sigmaS**2))
@@ -168,7 +170,7 @@ plt.savefig(path+"Figure_8_1.svg",format="svg")
 print(pars[0]/sigmaq)
 
 #%%
-rp,sec_data=sector_profile(imft*1,[int(px/2),int(px/2)],[90,5])
+rp,sec_data=sector_profile(imft*1,[int(px/2),int(px/2)],[90,10])
 
 x=np.linspace(0,0.5*np.sqrt(2)*px/ext,np.size(rp))
 
@@ -177,7 +179,7 @@ sigmaC=lam*(z1+z2)/2/np.pi/sigmay
 sigmaS=0.4793*lam*z2/(colloid_radius*2)*np.sqrt(2)
 
 sigmak=k*fwhmk/2.35
-sigmaT=np.sqrt(2*z2/sigmak)
+sigmaT=np.sqrt(z2/sigmak*np.sqrt(2/np.log(2)))
 
 sigma_total=np.sqrt(1/( 1/sigmaC**2 + 1/sigmaS**2 + 1/sigmaT**2 ))
 sigma_total2=np.sqrt(1/( 1/sigmaC**2 + 1/sigmaS**2))
