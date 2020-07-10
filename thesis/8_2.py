@@ -5,51 +5,51 @@ import matplotlib.pyplot as plt
 import h5py
 from helper import radial_profile, sector_profile,running_mean
 path='/home/alex/Desktop/'
-
+path='C:/Users/Alex/Desktop/'
 #%%  
 #jobId0=int(sys.argv[1]) #for using the batch cluster
 jobId0=0
 
-file="img_final.p"
+file="img_final2.p"
 
 #Beam
-sigmax=150e-6
-sigmay=10e-6
+sigmax=105e-6
+sigmay=15e-6
 lam=1e-10
 fwhmk=1e-3     
 
 #Setup
 z1=100
-z2=1.1
-ext=1e-3        
-px=int(2**10)
+z2=2
+ext=2.25e-3        
+px=int(2**11)
    
 #Colloids
-colloid_radius=1e-6
+colloid_radius=0.25e-6
 numScat=1
 
 
 #%%
-print("summming up")
-first=0
-for i in range(10):
-    try:
-        if(first==0):
-            hf = h5py.File(path+str(1)+"_"+str(i)+"_"+file, 'r')
-            img = np.array(hf.get('dataset_1'))
-            hf.close()
-            first=1
-        hf = h5py.File(path+str(1)+"_"+str(i)+"_"+file, 'r')
-        img2 = np.array(hf.get('dataset_1'))
-        hf.close()
-        img+=img2
-        print(i,'done')
-    except:
-        print(i, 'file not found')
+# print("summming up")
+# first=0
+# for i in range(10):
+#     try:
+#         if(first==0):
+#             hf = h5py.File(path+str(1)+"_"+str(i)+"_"+file, 'r')
+#             img = np.array(hf.get('dataset_1'))
+#             hf.close()
+#             first=1
+#         hf = h5py.File(path+str(1)+"_"+str(i)+"_"+file, 'r')
+#         img2 = np.array(hf.get('dataset_1'))
+#         hf.close()
+#         img+=img2
+#         print(i,'done')
+#     except:
+#         print(i, 'file not found')
 
-out = h5py.File(path+str("A")+"_"+file, 'w')
-out.create_dataset('dataset_1'   , data=img)
-out.close()
+# out = h5py.File(path+str("A")+"_"+file, 'w')
+# out.create_dataset('dataset_1'   , data=img)
+# out.close()
 
 #%%
 file=path+str("A")+"_"+file

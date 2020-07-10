@@ -28,11 +28,11 @@ fwhmk=1e-3
 #Setup
 z1=100
 z2=1.1
-ext=1e-3        
-px=int(2**10)
+ext=2.5e-3        
+px=int(2**11)
    
 #Colloids
-colloid_radius=1e-6
+colloid_radius=0.25e-6
 numScat=1
 
 #Mie

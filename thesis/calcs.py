@@ -11,32 +11,17 @@ from scipy.constants import c
 import matplotlib.pyplot as plt
 
 z1=100
-z2=2.5
+z2=2
 sigma=15e-6
 lam=10e-11
-ext=2e-3
-px=2048
-
-electron=0.5109989500015e6
-energy=182.5e9
-radius=10760
-magnet=23.94
-deltalambdaoverlambda=0.1
-gamma=energy/electron
-sigmaCx=lam*(z1+z2)/sigma/2/np.pi
-sigmaCq=sigmaCx/np.sqrt(2)/lam/z2
-
-ex=1.46e-9
-ey=2.9e-12
-
 
 mina=0.4793*z2/(z1+z2)*np.pi*sigma*np.sqrt(2)
 print("maximum colloid radius ",mina)
 
-minsigkoverk=2*z2/(z1+z2)**2*2*np.pi/lam*sigma**2
+minsigkoverk=z2/(z1+z2)**2*2*np.pi/lam*sigma**2*np.sqrt(2/np.log(2))
 print("maximum energy bandwith ",minsigkoverk)
 
-s=1
+s=1.5
 sigmavcz=lam*(z1+z2)/2/np.pi/sigma
 qmax=s*sigmavcz/np.sqrt(2)/lam/z2
 print("maximum frequency ",qmax)
@@ -53,6 +38,21 @@ fov=1/deltaq*s2
 print("suggested fov [mm] ",fov*1e3)
 print("suggested px ",qmax*fov*np.sqrt(2))
 
+#%%
+ext=2e-3
+px=2048
+
+electron=0.5109989500015e6
+energy=182.5e9
+radius=10760
+magnet=23.94
+deltalambdaoverlambda=0.1
+gamma=energy/electron
+sigmaCx=lam*(z1+z2)/sigma/2/np.pi
+sigmaCq=sigmaCx/np.sqrt(2)/lam/z2
+
+ex=1.46e-9
+ey=2.9e-12
 
 #%%Puls length
 v=np.sqrt(1-1/gamma**2)

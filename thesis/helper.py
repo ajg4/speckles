@@ -95,7 +95,7 @@ def defocused_otf(dz,zetas,q,NA,lam,n,terms):
 
 def running_mean(x, N):
     cumsum = np.cumsum(np.insert(x, 0, 0)) 
-    return((cumsum[N:] - cumsum[:-N]) / np.float128(N))
+    return((cumsum[N:] - cumsum[:-N]) / np.float64(N))
 
 def sector_profile(data,center,deg_range): 
     """
