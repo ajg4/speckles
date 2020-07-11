@@ -28,7 +28,7 @@ fwhmk=1e-3
 #Setup
 z1=100
 z2=1.1
-ext=2.5e-3        
+ext=1.5e-3        
 px=int(2**11)
    
 #Colloids

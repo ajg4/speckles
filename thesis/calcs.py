@@ -37,6 +37,13 @@ print("maximal resolvable frequency with ",s2," pixel for the last fringe ",delt
 fov=1/deltaq*s2
 print("suggested fov [mm] ",fov*1e3)
 print("suggested px ",qmax*fov*np.sqrt(2))
+print("suggested px size ",fov*1e3/(qmax*fov*np.sqrt(2)))
+
+print("maximum distance ",sigmavcz*s*1e3)
+
+nmax2=int((sigmavcz*s)**2/z2/lam)
+deltax=np.sqrt(lam*nmax2*z2)-np.sqrt(lam*(nmax2-1)*z2)
+print("suggested pixel size [mm]: ",deltax*1e3/s2)
 
 #%%
 ext=2e-3

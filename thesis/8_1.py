@@ -21,13 +21,13 @@ numSource=int(2**7)
 #Setup
 z1=100
 z2=2
-ext=2.5e-3        
+ext=1e-3        
 px=int(2**11)
 fwhmz2=0
    
 #Colloids
 colloid_radius=0.25e-6
-numScat=1
+numScat=10
 
 #Mie
 points=1000

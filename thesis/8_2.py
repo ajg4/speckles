@@ -17,19 +17,18 @@ sigmax=15e-6
 sigmay=105e-6
 lam=1e-10
 fwhmk=1e-3
-numSource=int(2**6)     
+numSource=int(2**7)     
 
 #Setup
 z1=100
 z2=2
-ext=2e-3        
+ext=0.5e-3        
 px=int(2**11)
 fwhmz2=0
    
 #Colloids
 colloid_radius=0.25e-6
-numScat=1
-
+numScat=10
 
 #%%
 # print("summming up")
@@ -93,7 +92,7 @@ plt.savefig(path+"Figure_8_3.svg",format="svg")
 
 
 #%%
-rp,sec_data=sector_profile(imft*1,[int(px/2),int(px/2)],[0,15])
+rp,sec_data=sector_profile(imft*1,[int(px/2),int(px/2)],[0,5])
 
 rp=running_mean(rp,1)
 
@@ -114,25 +113,18 @@ sigmaCq=sigmaC/lam/z2/np.sqrt(2)
 sigmaSq=sigmaS/lam/z2/np.sqrt(2)
 sigmaTq=sigmaT/lam/z2/np.sqrt(2)
 
-leading=np.exp(-0.5*(x/sigmaq)**2)
-top=leading[np.argmax(rp)]
-rp=rp/np.max(rp)*top
-
+rp=rp/np.max(rp)
 
 from scipy.optimize import curve_fit
-from scipy.signal import argrelextrema
-def gauss(x,sigma):
-    out=np.exp(-0.5*(x/sigma)**2)
+def gauss(x,sigma,a):
+    out=np.exp(-0.5*(x/sigma)**2)*np.sin(a*x**2)**2
     return(out)
 
-from scipy.signal import find_peaks
+pars=curve_fit(gauss,x,rp,p0=[sigmaq,np.pi*lam*z2])
 
-peaks=find_peaks(rp,distance=70)[0][1:]
-#plt.plot(x,rp)
-#plt.plot(x[peaks],rp[peaks])
-#maxima=argrelextrema(rp,np.greater)[0]
-#maxima2=argrelextrema(rp[maxima],np.greater)[0][:]
-pars=curve_fit(gauss,x[peaks],rp[peaks],p0=[sigmaq])
+fitted_curve=gauss(x,pars[0][0],pars[0][1])
+top=fitted_curve[np.argmax(fitted_curve)]
+top2=np.exp(-0.5*(x/sigmaq)**2)[np.argmax(fitted_curve)]
 
 
 SMALL_SIZE = 30
@@ -154,10 +146,9 @@ plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaTq)**2),label="temporal")
 plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaSq)**2),label="scattering")
 plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaCq)**2),label="spatial")
 plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaq)**2),label="total")
-#plt.plot(x*1e-6,np.exp(-0.5*(x/pars[0])**2),label="fit")
-#plt.plot(x*1e-6,np.exp(-0.5*(x/pars[0])**2),label="fit")
-#plt.plot(x[peaks]*1e-6,rp[peaks],label="fit_helper")
-plt.plot(x*1e-6,rp,label="simulation")
+# plt.plot(x*1e-6,fitted_curve/top*top2,label="fit")
+plt.plot(x*1e-6,np.exp(-0.5*(x/pars[0][0])**2)/top*top2,label="fit")
+plt.plot(x*1e-6,rp/top*top2,label="simulation")
 
 plt.xlabel(r'spatial radial frequency $[\mu m^{-1}]$')
 plt.ylabel('power spectrum [a.u.]')
@@ -167,10 +158,12 @@ plt.legend()
 plt.tight_layout()
 plt.savefig(path+"Figure_8_1.svg",format="svg")    
 
-print(pars[0]/sigmaq)
+print(pars[0][0]/sigmaq)
 
 #%%
-rp,sec_data=sector_profile(imft*1,[int(px/2),int(px/2)],[90,10])
+rp,sec_data=sector_profile(imft*1,[int(px/2),int(px/2)],[90,5])
+
+rp=running_mean(rp,1)
 
 x=np.linspace(0,0.5*np.sqrt(2)*px/ext,np.size(rp))
 
@@ -190,24 +183,21 @@ sigmaCq=sigmaC/lam/z2/np.sqrt(2)
 sigmaSq=sigmaS/lam/z2/np.sqrt(2)
 sigmaTq=sigmaT/lam/z2/np.sqrt(2)
 
-leading=np.exp(-0.5*(x/sigmaq)**2)
-top=leading[np.argmax(rp)]
-rp=rp/np.max(rp)*top
-
+rp=rp/np.max(rp)
 
 from scipy.optimize import curve_fit
-def gauss(x,sigma):
-    out=np.exp(-0.5*(x/sigma)**2)
+def gauss(x,sigma,a):
+    out=a*np.exp(-0.5*(x/sigma)**2)
     return(out)
 
 from scipy.signal import find_peaks
 
-peaks=find_peaks(rp,distance=100)[0][1:]
-#plt.plot(x,rp)
-#plt.plot(x[peaks],rp[peaks])
-#maxima=argrelextrema(rp,np.greater)[0]
-#maxima2=argrelextrema(rp[maxima],np.greater)[0][:]
-pars=curve_fit(gauss,x[peaks],rp[peaks],p0=[sigmaq])
+peaks=find_peaks(rp,distance=10)[0][np.array([3,5,6])]
+
+pars=curve_fit(gauss,x[peaks],rp[peaks],p0=[sigmaq,1])
+
+fitted_curve=gauss(x,pars[0][0],1)
+top=fitted_curve[np.argmax(rp)]
 
 
 SMALL_SIZE = 30
@@ -230,17 +220,16 @@ plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaTq)**2),label="temporal")
 plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaSq)**2),label="scattering")
 plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaCq)**2),label="spatial")
 plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaq)**2),label="total")
-#plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaq2)**2),label="total2")
-#plt.plot(x*1e-6,np.exp(-0.5*(x/pars[0])**2),label="fit")
-#plt.plot(x[peaks]*1e-6,rp[peaks],label="fit_helper")
-plt.plot(x*1e-6,rp,label="simulation")
+plt.plot(x*1e-6,fitted_curve,label="fit")
+plt.plot(x[peaks]*1e-6,rp[peaks]*top,label="fit helper")
+plt.plot(x*1e-6,rp*top,label="simulation")
 
 plt.xlabel(r'spatial radial frequency $[\mu m^{-1}]$')
 plt.ylabel('power spectrum [a.u.]')
-plt.legend()
+plt.legend(loc="upper right")
 
 
 plt.tight_layout()
 plt.savefig(path+"Figure_8_2.svg",format="svg")  
 
-print(pars[0]/sigmaq)
+print(pars[0][0]/sigmaq)
