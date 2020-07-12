@@ -89,15 +89,3 @@ qext_mie=geometric_cross*a[2]
 print("qext_theory :",qext_theory)
 print("qext_mie :",qext_mie)
 
-#%% Calculation of the concentration
-
-thickness=1e-3 #off the holder
-solution=1e-1 #volume concentration of colloids
-
-tau=0.1 #how much we want to absorb
-
-n=tau/qext_mie/thickness
-v=4*np.pi*(radius)**3/3
-x=solution/(n*v)
-
-print(x, " times diluted")

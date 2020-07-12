@@ -5,10 +5,11 @@ Created on Tue Mar 17 17:37:38 2020
 @author: agoetz
 """
 
-import numpy as np
 from scipy.special import kv
-from scipy.constants import c
+import numpy as np
 import matplotlib.pyplot as plt
+from scipy.constants import e,c,epsilon_0,h,m_e
+
 
 z1=100
 z2=3
@@ -52,138 +53,106 @@ print(" ")
 print("suggested number of px ",fov/pxs)
 
 
-#%%
-ext=2e-3
-px=2048
-
-electron=0.5109989500015e6
+#%%Puls length
+electron=m_e*c**2/e #rest mass of electron
 energy=182.5e9
 radius=10760
 magnet=23.94
 deltalambdaoverlambda=0.1
 gamma=energy/electron
-sigmaCx=lam*(z1+z2)/sigma/2/np.pi
-sigmaCq=sigmaCx/np.sqrt(2)/lam/z2
 
-ex=1.46e-9
-ey=2.9e-12
-
-#%%Puls length
 v=np.sqrt(1-1/gamma**2)
 deltac=magnet*(1/v-1)
 print(deltac)
 
-#%% temporal coherence
-lc=lam/deltalambdaoverlambda
-print(lc)
 
-deltalambda=deltalambdaoverlambda*lam
-deltanu=c/lam - c/(lam+deltalambda)
-tc=1/(deltanu)
-lc=c*tc
-print(lc)
-
-#%%fit factor for bandwidth
-print(deltanu)
-nu=c/lam
-print(nu)
-print((sigmaCx*3)**2/2/z2)
-
-#%%beam size
-beta=49
-print(np.sqrt(beta*ey)*1e6)
-
-#%% fit of sin(xx)/xx
-deltalambdaoverlambda=0.2
-
-deltalambda=deltalambdaoverlambda*lam
-deltak=2*np.pi*(1/lam-1/(lam+deltalambda))
-
-x=np.linspace(0,3*sigmaCx,1000)
-fac=deltak/4/z2*x*x
-i=np.sin(fac)/fac
-i[0]=i[1]
-
-def gauss(x,s):
-    return(np.exp(-0.5*x*x/s/s))
-
-from scipy.optimize import curve_fit
-
-popt, pcov = curve_fit(gauss, x, i)
-print(popt[0]*(deltak/z2)**(1/2))
-print()
-
-
-fac2=2*(deltak/z2)**(-1/2)
-
-plt.plot(x/sigmaCx,gauss(x,fac2))
-plt.plot(x/sigmaCx,gauss(x,popt[0]))
-plt.plot(x/sigmaCx,i)  
-
-#%% integration of cosine over an gaussian distribution
-points=1000
-
-k=2*np.pi/lam
-ks=np.linspace(k-4*deltak,k+4*deltak,points)
-ks_weight=np.exp(-0.5*(ks-k)**2/deltak**2)
-x=np.linspace(0,3*sigmaCx,points)
-
-def cos(k):
-    return(np.cos(k*x**2/2/z2))
-    
-i=np.zeros(points)
-for i in range(points):
-    i+=cos(ks[i])*ks_weight[i]    
-i=i/1000
-icos=i/cos(k)
-
-plt.plot(x,i,label='sum')
-#plt.plot(x,icos,label='decay')
-#plt.plot(x,cos(k),label='cosine')
-plt.yscale('log')
-plt.legend()
-
-#%%  colloids density
-
+#%% Van de Hulst exstinction cross section  and colloids concentration
+refr=1.457/1.331
 lam=632e-9
-radius=500e-9*2
-# refrel=1+1e-1+1e-1j
-refrel=1.457
-d=1e-3
+radius=500e-9
 
 x=2*np.pi*radius/lam
-rho=2*x*(np.real(refrel)-1)
+rho=2*x*(np.real(refr)-1)
 Q=2-4/rho*np.sin(rho)+4/rho**2*(1-np.cos(rho))
-# Q=3.9634450616970356
-print(Q)
-geo_cross=np.pi*radius**2
-Cext=geo_cross/Q
-print(Cext*1e13)
+geometric_cross=radius**2*np.pi
 
-n=-np.log(0.95)/(d*Cext)
-print(n*1e-14)
+qext_theory=geometric_cross*Q
 
-rat=4*np.pi*radius**3/3*n
 
-print(rat**(-1))
+print("qext_theory :",qext_theory)
+
+
+thickness=1e-3 #off the holder
+solution=1e-1 #volume concentration of colloids
+
+tau=0.1 #how much we want to absorb
+
+n=tau/qext_theory/thickness
+v=4*np.pi*(radius)**3/3
+x=solution/(n*v)
+
+print(x, " times diluted")
 
 #%% theoretical energy at sensor TODO
-ext=2e-3
-px=2048
 
-electron=0.5109989500015e6
-energy=182.5e9
-radius=10760
-magnet=23.94
-deltalambdaoverlambda=0.1
-gamma=energy/electron
+ext=1e-3 #extension of the aperture
+z1=100 #distance from the source
+orad=np.tan(ext/z1/2) #opening angle in rad
+
+electron=m_e*c**2/e #rest mass of electron
+energy=45.6e9 #beam energy
+radius=10760 #synchrotron radius
+gamma=energy/electron #beam gamma
+
+bunches=16640 #bunches per filling
+pop=1.7e11 #electrons per bunch
+revt=0.32e-3 #revolving time of an electron
+frac=0.71 #fraction of how much the magnets account for the circumference of the synchrotron
+
+ph_energy=12.4e3*e #central photon energy
+DeltaEE=1e-4 #energy bandwidth
+omega0=ph_energy/h*2*np.pi #central photon frequency
+
+absorption_coeff=0.37 #conversion from xray to visible (for 50um YAG:Ce)
+ph_yield=1.87e17 #photon yield per joule
+
+n=1000 #points for riemann integration
+theta=np.linspace(-orad,orad,n)
+omega=np.rot90([np.linspace(omega0,omega0*(1+DeltaEE),n)])
 
 def it(theta):
-    out=7/16*e**2/radius/(1/gamma**2+theta**2)**(5/2)*(1+5/7*(theta**2/(1/gamma**2+theta**2)))
+    out=7/16*e**2/radius
+    out/=4*np.pi*epsilon_0
+    out/=(gamma**(-2)+theta**2)**(5/2)
+    out*=1+5/7*(theta**2/(gamma**(-2)+theta**2))
     return(out)
 
-ts=np.linspace()
+def itw(theta,omega):
+    xi=omega*radius/3/c*(1/gamma**2+theta**2)**(3/2)
+    
+    out=1/4/np.pi/epsilon_0
+    out*=e**2/3/np.pi**2/c
+    out*=(omega*radius/c)**2*(gamma**(-2)+theta**2)**2*(kv(2/3,xi)**2+kv(1/3,xi)**2*(theta**2/(gamma**(-2)+theta**2)))*np.cos(theta)
+    return(out)
 
+e1=it(theta)
+i1=np.sum(e1*(orad*2/n))
+i1_2=7/24/epsilon_0*e**2/radius*gamma**4*(1+1/7)
+e_flux=bunches/revt*pop
+i1_tot=i1*e_flux*orad*2/2/np.pi*frac
 
+e2=itw(theta,omega)
+i2=np.sum(e2)*(DeltaEE*omega0)/n*(orad*2)/n
+i2_tot=i2*bunches/revt*pop*orad*2/2/np.pi*frac
+i2_tot_irr=i2_tot/(ext**2)
+flux=i2_tot_irr*absorption_coeff*ph_yield
 
+print("flux per electron on given cone for all frequencies [W]: ",i1)
+print("total power per electron analytic [W]: ",i1_2)
+print("electrons per second: ",e_flux)
+print("flux on aperture for all frequencies [W]: ",i1_tot)
+print("flux per electron on given cone for given frequencies [W]: ",i2)    
+print("flux on aperture for given frequencies [mW]: ",i2_tot*1e3)
+print("iraddiance for given frequencies [W]: ",i2_tot_irr)
+print("photon flux on aperture for given frequencies [/m^2/s]: ", flux)
 
