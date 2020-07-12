@@ -16,18 +16,18 @@ sigmax=15e-6
 sigmay=105e-6
 lam=1e-10
 fwhmk=1e-3
-numSource=int(2**7)     
+numSource=int(2**8)     
 
 #Setup
 z1=100
-z2=2
-ext=1e-3        
+z2=3
+ext=0.75e-3        
 px=int(2**11)
 fwhmz2=0
    
 #Colloids
-colloid_radius=0.25e-6
-numScat=10
+colloid_radius=0.5e-6
+numScat=100
 
 #Mie
 points=1000

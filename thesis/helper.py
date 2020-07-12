@@ -382,9 +382,10 @@ def the_speckles(sigmax,sigmay,lam,fwhmk,numSource,z1,z2,fwhmz2,ext,px,colloid_r
     
        
     #taking a set of beamparticles, looping each over all the scatteres
-    def thread(beamlist,ext,px,z1,z2,scatlist,mie_interpol):
+    def thread(beamlist,ext,px,z1,z2,scatlist,mie_interpol,job):
         img=np.zeros((px,px))
         for j in range(len(beamlist)):
+
             xp=beamlist[j][0]
             yp=beamlist[j][1]
             k=beamlist[j][2]
@@ -400,6 +401,8 @@ def the_speckles(sigmax,sigmay,lam,fwhmk,numSource,z1,z2,fwhmz2,ext,px,colloid_r
             
             e10s=np.zeros((px,px),dtype='complex128')
             for i in range(len(scatlist)):
+                if(job==0):
+                    print(j,len(beamlist),i,len(scatlist))
                 xs=scatlist[i][0]
                 ys=scatlist[i][1]
                 z2c=scatlist[i][2]
@@ -479,7 +482,8 @@ def the_speckles(sigmax,sigmay,lam,fwhmk,numSource,z1,z2,fwhmz2,ext,px,colloid_r
                                                         z1,
                                                         z2,
                                                         scatlist,
-                                                        mie_interpol)))
+                                                        mie_interpol,
+                                                        i)))
         for i in range(cores):
             res[i]=proc[i].get()
         

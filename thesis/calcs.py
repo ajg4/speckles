@@ -11,7 +11,7 @@ from scipy.constants import c
 import matplotlib.pyplot as plt
 
 z1=100
-z2=1
+z2=3
 sigma=15e-6
 lam=10e-11
 
@@ -19,31 +19,38 @@ mina=0.4793*z2/(z1+z2)*np.pi*sigma*np.sqrt(2)
 print("maximum colloid radius ",mina)
 
 minsigkoverk=z2/(z1+z2)**2*2*np.pi/lam*sigma**2*np.sqrt(2/np.log(2))
-print("maximum energy bandwith ",minsigkoverk)
+print("maximum energy bandwith ",minsigkoverk*100)
 
 s=1
+s2=5
 sigmavcz=lam*(z1+z2)/2/np.pi/sigma
+
+print(" ")
+
+nmax2=int((sigmavcz*s)**2/z2/lam)
+print("maximum fringe: ",nmax2)
+deltax=np.sqrt(lam*nmax2*z2)-np.sqrt(lam*(nmax2-1)*z2)
+pxs=deltax/s2
+print("suggested pixel size: ",pxs)
+print("suggested magnification: ",2.4e-6/pxs)
+
+
+print(" ")
+
 qmax=s*sigmavcz/np.sqrt(2)/lam/z2
-print("maximum frequency ",qmax)
+print("maximum fft frequency ",qmax)
 
 nmax=int(qmax**2*lam*z2)
-print("maximum fringe number ",nmax)
-
 deltaq=np.sqrt(nmax/lam/z2)-np.sqrt((nmax-1)/lam/z2)
-print("maximal resolvable frequency ",deltaq)
-s2=10
-print("maximal resolvable frequency with ",s2," pixel for the last fringe ",deltaq/s2)
+print("suggested fft resolution ",deltaq/s2)
 
 fov=1/deltaq*s2
 print("suggested fov [mm] ",fov*1e3)
-print("suggested px ",qmax*fov*np.sqrt(2))
-print("suggested px size ",fov*1e3/(qmax*fov*np.sqrt(2)))
 
-print("maximum distance ",sigmavcz*s*1e3)
+print(" ")
 
-nmax2=int((sigmavcz*s)**2/z2/lam)
-deltax=np.sqrt(lam*nmax2*z2)-np.sqrt(lam*(nmax2-1)*z2)
-print("suggested pixel size [mm]: ",deltax*1e3/s2)
+print("suggested number of px ",fov/pxs)
+
 
 #%%
 ext=2e-3
@@ -161,4 +168,22 @@ rat=4*np.pi*radius**3/3*n
 print(rat**(-1))
 
 #%% theoretical energy at sensor TODO
+ext=2e-3
+px=2048
+
+electron=0.5109989500015e6
+energy=182.5e9
+radius=10760
+magnet=23.94
+deltalambdaoverlambda=0.1
+gamma=energy/electron
+
+def it(theta):
+    out=7/16*e**2/radius/(1/gamma**2+theta**2)**(5/2)*(1+5/7*(theta**2/(1/gamma**2+theta**2)))
+    return(out)
+
+ts=np.linspace()
+
+
+
 

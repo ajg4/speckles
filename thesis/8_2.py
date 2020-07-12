@@ -17,18 +17,19 @@ sigmax=15e-6
 sigmay=105e-6
 lam=1e-10
 fwhmk=1e-3
-numSource=int(2**7)     
+numSource=int(2**8)     
 
 #Setup
 z1=100
-z2=2
-ext=0.5e-3        
+z2=3
+ext=0.75e-3        
 px=int(2**11)
 fwhmz2=0
    
 #Colloids
-colloid_radius=0.25e-6
+colloid_radius=0.5e-6
 numScat=10
+   
 
 #%%
 # print("summming up")
@@ -60,6 +61,10 @@ img = np.array(hf.get('dataset_1'))
 hf.close()  
 
 k=2*np.pi/lam
+
+#%%
+plt.figure(123)
+plt.imshow(img)
 
 #%%
 imft=np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(img))))**2
@@ -152,9 +157,9 @@ plt.plot(x*1e-6,rp/top*top2,label="simulation")
 
 plt.xlabel(r'spatial radial frequency $[\mu m^{-1}]$')
 plt.ylabel('power spectrum [a.u.]')
-plt.legend()
+plt.legend(loc="upper right")
 
-
+plt.xlim([0,1])
 plt.tight_layout()
 plt.savefig(path+"Figure_8_1.svg",format="svg")    
 
@@ -163,7 +168,7 @@ print(pars[0][0]/sigmaq)
 #%%
 rp,sec_data=sector_profile(imft*1,[int(px/2),int(px/2)],[90,5])
 
-rp=running_mean(rp,1)
+rp=running_mean(rp,4)
 
 x=np.linspace(0,0.5*np.sqrt(2)*px/ext,np.size(rp))
 
@@ -192,7 +197,7 @@ def gauss(x,sigma,a):
 
 from scipy.signal import find_peaks
 
-peaks=find_peaks(rp,distance=10)[0][np.array([3,5,6])]
+peaks=find_peaks(rp,distance=10)[0][np.array([0,1,2,3])]
 
 pars=curve_fit(gauss,x[peaks],rp[peaks],p0=[sigmaq,1])
 
@@ -221,14 +226,14 @@ plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaSq)**2),label="scattering")
 plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaCq)**2),label="spatial")
 plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaq)**2),label="total")
 plt.plot(x*1e-6,fitted_curve,label="fit")
-plt.plot(x[peaks]*1e-6,rp[peaks]*top,label="fit helper")
+# plt.plot(x[peaks]*1e-6,rp[peaks]*top,label="fit helper")
 plt.plot(x*1e-6,rp*top,label="simulation")
 
 plt.xlabel(r'spatial radial frequency $[\mu m^{-1}]$')
 plt.ylabel('power spectrum [a.u.]')
 plt.legend(loc="upper right")
 
-
+plt.xlim([0,0.5])
 plt.tight_layout()
 plt.savefig(path+"Figure_8_2.svg",format="svg")  
 
