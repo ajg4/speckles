@@ -156,3 +156,12 @@ print("flux on aperture for given frequencies [mW]: ",i2_tot*1e3)
 print("iraddiance for given frequencies [W]: ",i2_tot_irr)
 print("photon flux on aperture for given frequencies [/m^2/s]: ", flux)
 
+#%% ALBA Undulator K value
+def getUndK(gap_um):
+    min_valid_K=0.5
+    a_0=-178.683137165;a_1=101031.437305031;a_2=-268554.955894147
+    a_3=333043.58574148;a_4=-223412.253880588;a_5=78201.083309632
+    a_6=-11222.656555176
+    r=np.roots(np.flipud([a_0-gap_um,a_1,a_2,a_3,a_4,a_5,a_6]))
+    r=r[np.isreal(r)];r=r[r>=min_valid_K]
+    return r.real[0]
