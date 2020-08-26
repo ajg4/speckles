@@ -3,7 +3,8 @@ arguments    = $(ClusterId) $(ProcId)
 output    = /afs/cern.ch/work/a/agoetz/public/output/output.$(ProcId).out
 error    = /afs/cern.ch/work/a/agoetz/public/error/error.$(ProcId).err
 log    = /afs/cern.ch/work/a/agoetz/public/log/log.$(ProcId).log
-RequestCpus    = 4
+RequestCpus    = 1
+RequestMemory = 8192
 
 +JobFlavour    = "longlunch"
 transfer_output_files   = ""

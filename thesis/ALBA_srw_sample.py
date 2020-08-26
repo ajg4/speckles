@@ -24,10 +24,10 @@ lam=6e-11
 #Setup
 z1=28.5
 ext=1e-3        
-px=int(2**10)
+px=int(6**4)
    
 #Computing   
-cores=8
+cores=6
 resize=2 #resizing within the SRW calculation of the wavefront
 slices=cores   #cuts the calculation in slices to reduces RAM peak
 
