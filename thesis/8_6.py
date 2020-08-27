@@ -5,6 +5,7 @@ import time
 import numpy as np
 import pickle as pk
 import multiprocessing as mp
+from multiprocessing.pool import ThreadPool
 import gc
 import os
 import psutil
@@ -19,9 +20,10 @@ electron_mass=9.1093837015e-31
 # jobId=int(sys.argv[1])
 # jobId=0
 
+path='./'
 
 def job(jobId):
-    path='./'
+
     # path='/eos/home-a/agoetz/tempresults/'
     
     #Beam
@@ -37,7 +39,7 @@ def job(jobId):
     z1=32.5
     z2=0.5
     ext=1e-4        
-    px=int(2**11)
+    px=int(2**9)
     
     #Computing   
     cores=4
@@ -390,7 +392,7 @@ def job(jobId):
     file = open(path+'wfr_struct'+str(jobId), 'rb');wfr = pk.load(file);file.close()    
     arI1s=np.reshape(arI1s,(wfr.mesh.ny,wfr.mesh.nx))
     
-    hf = h5py.File(path+str(jobId)+"_"+"img_final.p", 'w')
+    hf = h5py.File(path+str(jobId)+".h5", 'w')
     hf.create_dataset('dataset_1', data=arI1s)
     hf.close()
     print('done in',round(time.time() - t0)) 
@@ -398,31 +400,28 @@ def job(jobId):
     # print(psutil.virtual_memory())
 
 
-from multiprocessing.pool import ThreadPool
-from multiprocessing import cpu_count
-
-img=np.zeros((px,px))
-
+first=0
 for j in range(3):
+        
+    cores=mp.cpu_count()
     proc=[]
-    thr_count=cpu_count()
-    pool=ThreadPool(processes=thr_count)
-    for i in range(thr_count):
-        proc.append(pool.apply_async(job, (i)))
+          
+    pool = mp.Pool(processes=cores)
+    for i in range(cores):    
+        proc.append((i))
         
-    for i in range(thr_count):
-        proc[i].get()
-        
+    results=pool.map(job, proc)
+            
     print("summming up")
-    first=0
-    for i in range(thr_count):
+
+    for i in range(cores):
         try:
             if(first==0):
-                hf = h5py.File(path+str(i)+"_"+file, 'r')
+                hf = h5py.File(path+str(i)+".h5", 'r')
                 img = np.array(hf.get('dataset_1'))
                 hf.close()
                 first=1
-            hf = h5py.File(path+str(i)+"_"+file, 'r')
+            hf = h5py.File(path+str(i)+".h5", 'r')
             img2 = np.array(hf.get('dataset_1'))
             hf.close()
             img+=img2

@@ -18,7 +18,7 @@ path='./'
 z1=32.5
 z2=0.5
 ext=2e-4        
-px=int(2**11)
+px=int(2**9)
    
 #Colloids
 colloid=1e-6
