@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/afs/cern.ch/work/a/agoetz/public/speckles/thesis/srw/')
+sys.path.append('./srw2/')
 from srwlib import *
 import time
 import numpy as np
@@ -105,9 +105,9 @@ useTermin = 1 #Use "terminating terms" (i.e. asymptotic expansions at zStartInte
 print('Performing initial electric field wavefront calculation ... ')
 t0 = time.time()
 
-def thread(wfr,par, magFldCnt, arPrecSR):
+def thread(args):
+    wfr,par,magFldCnt,arPrecSR=args
     srwl.CalcElecFieldSR(wfr, par, magFldCnt, arPrecSR) #Calculating electric field
-#    print()
     return(wfr)
     
 sl=ext/cores
@@ -135,7 +135,7 @@ pool = mp.Pool(cores)
 poolInputs=[]
 for i in range(cores):
     poolInputs.append((wfrs[i],par, magFldCnt, arPrecSR))
-wfrSplits=pool.starmap(thread,poolInputs)
+wfrSplits=pool.map(thread,poolInputs)
 pool.close()
 pool.join()
 
