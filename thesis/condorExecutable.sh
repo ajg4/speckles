@@ -4,8 +4,9 @@ cd $var
 
 echo loading input
 date +"%T"
-xrdcp -r -s /afs/cern.ch/work/a/agoetz/public/lenv $var
-xrdcp -s /afs/cern.ch/work/a/agoetz/public/SRWscripts/1c.py $var
+xrdcp -r -s /afs/cern.ch/work/a/agoetz/public/env $var
+xrdcp -s /afs/cern.ch/work/a/agoetz/public/speckles/thesis/8_5.py $var
+xrdcp -s /afs/cern.ch/work/a/agoetz/public/speckles/thesis/8_6.py $var
 echo imput loaded
 date +"%T"
 

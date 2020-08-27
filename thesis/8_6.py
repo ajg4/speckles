@@ -1,5 +1,5 @@
 import sys
-sys.path.append('./srw')
+sys.path.append('/afs/cern.ch/work/a/agoetz/public/speckles/thesis/srw/')
 from srwlib import *
 import time
 import numpy as np
