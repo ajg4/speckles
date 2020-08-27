@@ -1,9 +1,11 @@
 import time
-from scipy.constants import h,c,e
 import numpy as np
-import matplotlib.pyplot as plt
 import pickle as pk
 from array import array
+
+h=6.62607015e-34
+c=299792458.0
+e=1.602176634e-19
 
 #jobId=int(sys.argv[1])
 jobId=0
@@ -45,8 +47,6 @@ for i in range(numScat):
         nx=int(0.5*px)
         ny=int(0.5*px)       
     a[nx-size_half:nx+size_half,ny-size_half:ny+size_half]*=mask
-
-plt.imshow(np.real(a))
 
 
 a=a.flatten()

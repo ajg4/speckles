@@ -1,8 +1,7 @@
 import sys
-sys.path.append('/home/alex/Desktop/speckles/thesis/srw')
+sys.path.append('./srw')
 from srwlib import *
 import time
-from scipy.constants import h,c,e, electron_mass
 import numpy as np
 import pickle as pk
 import multiprocessing as mp
@@ -11,6 +10,11 @@ import os
 import psutil
 from array import array
 import h5py
+
+h=6.62607015e-34
+c=299792458.0
+e=1.602176634e-19
+electron_mass=9.1093837015e-31
 
 #jobId=int(sys.argv[1])
 jobId=0
