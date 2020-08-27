@@ -6,6 +6,7 @@ from array import array
 h=6.62607015e-34
 c=299792458.0
 e=1.602176634e-19
+electron_mass=9.1093837015e-31
 
 #jobId=int(sys.argv[1])
 jobId=0
