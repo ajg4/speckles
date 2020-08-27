@@ -18,11 +18,11 @@ path='./'
 z1=32.5
 z2=0.5
 ext=2e-4        
-px=int(2**13)
+px=int(2**11)
    
 #Colloids
-colloid=0.5e-6
-numScat=5000
+colloid=1e-6
+numScat=1
 
 
 px_col=int(colloid/(ext/px))
