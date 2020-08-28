@@ -4,8 +4,7 @@ import helper
 import matplotlib.pyplot as plt
 import h5py
 from helper import radial_profile, sector_profile,running_mean
-path='/home/alex/Desktop/'
-path='C:/Users/Alex/Desktop/'
+path='./'
 #%%  
 #jobId0=int(sys.argv[1]) #for using the batch cluster
 jobId0=0

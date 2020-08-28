@@ -3,8 +3,7 @@ import numpy as np
 from helper import the_speckles,bhmie
 import h5py
 from scipy import interpolate
-path='/home/alex/Desktop/'
-path='C:/Users/Alex/Desktop/'
+path='./'
 #%%  
 #jobId0=int(sys.argv[1]) #for using the batch cluster
 jobId0=0
@@ -16,7 +15,7 @@ sigmax=15e-6
 sigmay=105e-6
 lam=1e-10
 fwhmk=1e-3
-numSource=int(2**8)     
+numSource=int(2**0)     
 
 #Setup
 z1=100
@@ -27,7 +26,7 @@ fwhmz2=0
    
 #Colloids
 colloid_radius=0.5e-6
-numScat=100
+numScat=1
 
 #Mie
 points=1000
