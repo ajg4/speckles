@@ -21,17 +21,17 @@ numSource=int(2**8)
 #Setup
 z1=33
 z2=0.1
-ext=4e-4        
-px=int(2**10)
+ext=2e-4      
+px=int(2**11)
 fwhmz2=0
    
 #Colloids
-colloid_radius=0.25e-6
+colloid_radius=0.5e-6
 numScat=10
 
 k=2*np.pi/2
 
-x=np.linspace(0,0.5*np.sqrt(2)*px/ext,px)
+x=np.linspace(0,0.5*px/ext,px)
 
 dz,zetas,q,NA,lam_v,n,terms=100e-6,30,x/23,0.4,500e-9,1.5,10
 

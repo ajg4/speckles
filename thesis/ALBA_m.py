@@ -22,7 +22,7 @@ px=int(2**13)
    
 #Colloids
 colloid=0.5e-6
-numScat=1
+numScat=1000
 
 
 px_col=int(colloid/(ext/px))

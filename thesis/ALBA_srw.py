@@ -37,9 +37,9 @@ def job(jobId):
     
     #Setup
     z1=33
-    z2=0.5
-    ext=1e-4        
-    px=int(2**9)
+    z2=0.1
+    ext=2e-4        
+    px=int(2**13)
     
     #Computing   
     cores=4
