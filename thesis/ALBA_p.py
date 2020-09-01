@@ -13,14 +13,14 @@ file="img_final2.p"
 
 #Beam
 sigmax=130e-6
-sigmay=6.5e-6
-lam=6.2e-11
+sigmay=130e-6
+lam=1e-10
 fwhmk=0.002
 numSource=int(2**8)     
 
 #Setup
 z1=33
-z2=0.1
+z2=0.2
 ext=2e-4        
 px=int(2**11)
 fwhmz2=0
@@ -73,7 +73,7 @@ plt.figure(123)
 plt.imshow(img)
 
 #%%
-
+from matplotlib.colors import LogNorm
 
 SMALL_SIZE = 30
 MEDIUM_SIZE = 30
@@ -92,10 +92,16 @@ fig=plt.figure('Figure_8_3.svg',figsize=(10,10))
 
 x=np.linspace(0,0.5*px/ext,px)
 
+# imft2=np.where(imft>np.mean(imft)*300,np.mean(imft)*300,imft)
+# imft2=np.log(imft)
+imft2=imft
+
 extent=np.array([-x[-1],x[-1],-x[-1],x[-1]])*1e-6
-plt.imshow(imft,extent=extent)
+plt.imshow(imft2,extent=extent)
 plt.xlabel(r"horizontal spatial frequency $[\mu m^{-1}]$")
 plt.ylabel(r"vertical spatial frequency $[\mu m^{-1}]$")
+plt.xlim(-2,2)
+plt.ylim(-2,2)
 
 
 plt.tight_layout()

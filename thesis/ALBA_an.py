@@ -13,14 +13,14 @@ file="img_final2.p"
 #Beam
 sigmax=130e-6
 sigmay=6.5e-6
-lam=6.2e-11
+lam=1e-10
 fwhmk=1e-20
 numSource=int(2**8)     
 
 #Setup
 z1=33
-z2=0.1
-ext=2e-4        
+z2=0.2
+ext=160e-6        
 px=int(2**11)
 fwhmz2=1e-20
    
@@ -32,6 +32,7 @@ numScat=1
 points=1000
 rad=np.arctan(ext/z2)*1.5
 refr=1 - 1.28e-6 + 2.49e-09*1j
+refr=1-3.59e-6+1.98e-8*1j
 
 a=bhmie(lam,colloid_radius,refr,points,rad)
 mie=np.abs(a[0])

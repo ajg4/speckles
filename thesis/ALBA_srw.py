@@ -29,16 +29,16 @@ def job(jobId):
     #Beam
     sigmax=130e-6
     sigmay=6.5e-6
-    lam=6.2e-11
-    fwhmlam=0    
+    lam=1e-10
+    fwhmlam=1e-4   
     numSource=1
-    xpos=0
-    ypos=0 
+    xpos=np.random.standard_normal(sigmax)
+    ypos=np.random.standard_normal(sigmay) 
     
     #Setup
     z1=33
-    z2=0.1
-    ext=2e-4        
+    z2=0.2
+    ext=160e-6        
     px=int(2**13)
     
     #Computing   

@@ -16,8 +16,8 @@ path='./'
 
 #Setup
 z1=33
-z2=0.1
-ext=2e-4        
+z2=0.2
+ext=160e-6        
 px=int(2**13)
    
 #Colloids
@@ -25,7 +25,7 @@ colloid=0.5e-6
 numScat=1000
 
 
-px_col=int(colloid/(ext/px))
+px_col=int(colloid/(ext/px))+1
 print(px_col)
 #%%
 
@@ -35,15 +35,17 @@ a=np.ones((px,px),dtype='complex64')
 
 beta=1
 size_half=int(px_col/2)
-xx,yy=np.meshgrid(np.linspace(-colloid/2,colloid/2,px_col),np.linspace(-colloid/2,colloid/2,px_col))
+size_real_half=ext/px*px_col/2
+
+xx,yy=np.meshgrid(np.linspace(-size_real_half,size_real_half,px_col),np.linspace(-size_real_half,size_real_half,px_col))
 grid=np.sqrt(xx**2+yy**2)
 grid=np.where(grid>colloid/2,colloid/2,grid)
 mask=1-beta*np.sqrt(1-(grid/colloid*2)**2)
-mask=np.where(grid<colloid/2,0,1)
+# mask=np.where(grid<colloid/2,0,1)
 
 for i in range(numScat):
-    nx=int(np.random.rand()*0.9*px+0.05*px)
-    ny=int(np.random.rand()*0.9*px+0.05*px)
+    nx=int(np.random.rand()*0.6*px+0.2*px)
+    ny=int(np.random.rand()*0.6*px+0.2*px)
     if(numScat==1):
         nx=int(0.5*px)
         ny=int(0.5*px)       
