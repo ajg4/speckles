@@ -18,18 +18,18 @@ path='./'
 z1=33
 z2=0.2
 ext=160e-6        
-px=int(2**13)
+px=int(2**12)
    
 #Colloids
 colloid=0.5e-6
-numScat=1000
+numScat=10000
 
 
-px_col=int(colloid/(ext/px))+1
+px_col=int(colloid/(ext/px))
 print(px_col)
 #%%
 
-print('   Preparing the mask ... ', end='')
+print('   Preparing the mask ... ')
 t0 = time.time()
 a=np.ones((px,px),dtype='complex64')
 
@@ -44,18 +44,20 @@ mask=1-beta*np.sqrt(1-(grid/colloid*2)**2)
 # mask=np.where(grid<colloid/2,0,1)
 
 for i in range(numScat):
-    nx=int(np.random.rand()*0.6*px+0.2*px)
-    ny=int(np.random.rand()*0.6*px+0.2*px)
+    nx=int(np.random.rand()*0.9*px+0.05*px)
+    ny=int(np.random.rand()*0.9*px+0.05*px)
     if(numScat==1):
         nx=int(0.5*px)
         ny=int(0.5*px)       
     a[nx-size_half:nx+size_half,ny-size_half:ny+size_half]*=mask
 
-
 a=a.flatten()
 a=np.array([np.real(a),np.real(a)])
 a=np.rot90(a,-1)
 a=a.flatten()
+
+b=np.abs(a[::2]+a[1::2]*1j)**2
+c=np.reshape(b,(px,px))
 
 a=array('f', a)
 f=open(path+'mask','wb');a.tofile(f);f.close()

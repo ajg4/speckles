@@ -5,21 +5,14 @@ from os import listdir
 from os.path import isfile, join
 from helper import radial_profile, sector_profile
 
-path0='/home/alex/Desktop/alba_data/K020/'
 
-path=['WD500mm_ET50ms_CouplingSmallest_2019-10-22_00h35m58/',
- 'WD860mm_ET50ms_CouplingSmallest_2019-10-22_00h47m52/',
- 'WD100mm_ET50ms_CouplingSmallest_2019-10-22_00h27m42/',
- 'WD300mm_ET50ms_CouplingSmallest_2019-10-22_00h32m29/',
- 'WD200mm_ET50ms_CouplingSmallest_2019-10-22_00h30m56/',
- 'WD960mm_ET50ms_CouplingSmallest_2019-10-22_00h43m36/',
- 'WD100mm_ET50ms_CouplingSmallest_2019-10-22_00h27m42/',
- 'WD760mm_ET50ms_CouplingSmallest_2019-10-22_00h49m33/',
- 'WD1060mm_ET50ms_CouplingSmallest_2019-10-22_00h41m46/',
- 'WD660mm_ET50ms_CouplingSmallest_2019-10-22_00h51m37/',
- 'WD400mm_ET50ms_CouplingSmallest_2019-10-22_00h34m10/']
+path='/home/alex/Desktop/__myprojects/speckles/Measurements_Raw_Data/ALBA/NCD/2018_10_16/F1_WD200_ET50ms_Col1_2018-10-15_20h02m59/'
+# path='/home/alex/Desktop/__myprojects/speckles/Measurements_Raw_Data/ALBA/NCD/2018_10_16/F2_WD200_ET50ms_Col1_2018-10-15_20h16m57/'
+# path='/home/alex/Desktop/__myprojects/speckles/Measurements_Raw_Data/ALBA/NCD/2018_10_16/F1_WD200_ET50ms_Water_2018-10-15_20h06m54/'
+# path='/home/alex/Desktop/__myprojects/speckles/Measurements_Raw_Data/ALBA/NCD/2018_10_16/F2_WD200_ET50ms_Water_2018-10-15_20h14m24/'
 
-distances=np.array([500,860,100,300,200,960,100,760,1060,660,400])
+
+distances=np.array([200])
 
 so=np.argsort(distances)
 
@@ -27,57 +20,45 @@ distances=distances[so]
 
 pxx=1296
 pxy=966
-
-imfts=[]
-
-
-for i in range(len(path)):    
-    files = [f for f in listdir(path0+path[so[i]]) if isfile(join(path0+path[so[i]], f))]
-    img0=np.zeros((pxy,pxx))
-    for j in range(len(files)):
-        img = EdfFile.EdfFile(path0+path[so[i]]+files[j]).GetData(0).astype(np.float)
-        img0+=img  
-    img0=img0/len(files) 
-    
-    imft0=np.zeros((pxy,pxx))
-    for j in range(len(files)):
-        img = EdfFile.EdfFile(path0+path[so[i]]+files[j]).GetData(0).astype(np.float)
-        imft=np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(img-img0))))**2
-        imft0+=imft     
-    imft0=imft0/len(files)         
-
-    imfts.append(imft0)
-    # plt.figure(distances[i])
-    # plt.imshow(np.log(imft0))
-    
-#%%
-rps=[]
-ext=1.6e-4
-x=np.linspace(0,0.5*pxy/ext,pxy)
-
-for i in range(len(imfts)):
-    rp,sec_data=sector_profile(imfts[i][:,165:-165]*1,[int(pxy/2),int(pxy/2)],[90,10])
-    rp=rp/np.max(rp)
-    rps.append(rp)
-    plt.plot(rp,label=distances[i])
-plt.legend()
-# plt.xlim(0,1)
-plt.yscale("log")
+ext=160e-6
+#
 #%%
 
-a=imfts[-1][:,165:-165]
+   
+files = [f for f in listdir(path) if isfile(join(path, f))]
+img0=np.zeros((pxy,pxx))
+for j in range(len(files)):
+    img = EdfFile.EdfFile(path+files[j]).GetData(0).astype(np.float)
+    img0+=img  
+img0=img0/len(files)
 
-# plt.imshow(np.log(a))
+show=img-img0
+show2=show[:,165:-165]
 
-rp,sec_data=sector_profile(a*1,[int(pxy/2),int(pxy/2)],[0,20])
+path='/home/alex/Desktop/speckles/thesis/'
+SMALL_SIZE = 30
+MEDIUM_SIZE = 30
+BIGGER_SIZE = 30
 
-# rp[1]=rp[2]
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-plt.plot(rp)
-plt.yscale("log")
-#%%
 
-for i in range(len(imfts)):
-    plt.figure(distances[i])
-    plt.imshow(np.log(imfts[i]))
+fig=plt.figure('C_speckles.svg',figsize=(10,10))
+
+extent=np.array([-ext/2,ext/2,-ext/2,ext/2])*1e6
+plt.imshow(show2,extent=extent)
+plt.xlabel(r"x $[\mu m]$")
+plt.ylabel(r"y $[\mu m]$")
+plt.xlim(-80,80)
+plt.ylim(-80,80)
+
+
+plt.tight_layout()
+plt.savefig(path+"C_speckles.svg",format="svg") 
 

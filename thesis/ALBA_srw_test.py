@@ -18,14 +18,14 @@ e=1.602176634e-19
 electron_mass=9.1093837015e-31
 
 # jobId=int(sys.argv[1])
-# jobId=0
+jobId=0
 
 path='./'
 
 #Beam
 sigmax=130e-6
 sigmay=6.5e-6
-lam=6.2e-11
+lam=1e-10
 fwhmlam=0    
 numSource=1
 xpos=0
@@ -33,12 +33,12 @@ ypos=0
 
 #Setup
 z1=33
-z2=0.5
-ext=1e-4        
-px=int(2**9)
+z2=0.2
+ext=160e-6        
+px=int(2**12)
 
 #Computing   
-cores=4
+cores=8
 resize=8 #resizing within the SRW calculation of the wavefront
 
 #Undulator params
@@ -388,9 +388,11 @@ gc.collect()
 file = open(path+'wfr_struct'+str(jobId), 'rb');wfr = pk.load(file);file.close()    
 arI1s=np.reshape(arI1s,(wfr.mesh.ny,wfr.mesh.nx))
 
-hf = h5py.File(path+str(jobId)+".h5", 'w')
+hf = h5py.File(path+str(jobId)+"srw.h5", 'w')
 hf.create_dataset('dataset_1', data=arI1s)
 hf.close()
 print('done in',round(time.time() - t0)) 
 print('total',round(time.time() - t00))
 # print(psutil.virtual_memory())
+
+

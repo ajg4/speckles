@@ -32,17 +32,19 @@ def job(jobId):
     lam=1e-10
     fwhmlam=1e-4   
     numSource=1
-    xpos=np.random.standard_normal(sigmax)
-    ypos=np.random.standard_normal(sigmay) 
+    xpos=np.random.standard_normal()*sigmax
+    ypos=np.random.standard_normal()*sigmay
+    # xpos=0
+    # ypos=0
     
     #Setup
     z1=33
     z2=0.2
     ext=160e-6        
-    px=int(2**13)
+    px=int(2**12)
     
     #Computing   
-    cores=4
+    # cores=4
     resize=8 #resizing within the SRW calculation of the wavefront
     
     #Undulator params
@@ -404,6 +406,7 @@ first=0
 for j in range(3):
         
     cores=mp.cpu_count()
+    # cores=1
     proc=[]
           
     pool = mp.Pool(processes=cores)
@@ -429,8 +432,8 @@ for j in range(3):
         except:
             print(i, 'file not found')
 
-    out = h5py.File("./final", 'w')
-    out.create_dataset('dataset_1'   , data=img)
-    out.close()
-    os.system('aws s3 cp ./final s3://mocd/final.h5')
+    # out = h5py.File("./final", 'w')
+    # out.create_dataset('dataset_1'   , data=img)
+    # out.close()
+    # os.system('aws s3 cp ./final s3://mocd/final.h5')
     

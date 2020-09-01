@@ -5,15 +5,16 @@ import matplotlib.pyplot as plt
 import h5py
 from helper import radial_profile, sector_profile,running_mean, defocused_otf
 path='/home/alex/Desktop/speckles/thesis/'
-#%%  
+
 #jobId0=int(sys.argv[1]) #for using the batch cluster
 jobId0=0
 
-file="img_final2.p"
+file="an.h5"
+# file="srw.h5"
 
 #Beam
 sigmax=130e-6
-sigmay=130e-6
+sigmay=6.5-6
 lam=1e-10
 fwhmk=0.002
 numSource=int(2**8)     
@@ -21,7 +22,7 @@ numSource=int(2**8)
 #Setup
 z1=33
 z2=0.2
-ext=2e-4        
+ext=160e-6        
 px=int(2**11)
 fwhmz2=0
    
@@ -31,26 +32,26 @@ numScat=10
    
 
 #%%
-# print("summming up")
-# first=0
-# for i in range(10):
-#     try:
-#         if(first==0):
-#             hf = h5py.File(path+str(i)+"_"+file, 'r')
-#             img = np.array(hf.get('dataset_1'))
-#             hf.close()
-#             first=1
-#         hf = h5py.File(path+str(i)+"_"+file, 'r')
-#         img2 = np.array(hf.get('dataset_1'))
-#         hf.close()
-#         img+=img2
-#         print(i,'done')
-#     except:
-#         print(i, 'file not found')
+print("summming up")
+first=0
+for i in range(10):
+    try:
+        if(first==0):
+            hf = h5py.File(path+str(i)+file, 'r')
+            img = np.array(hf.get('dataset_1'))
+            hf.close()
+            first=1
+        hf = h5py.File(path+str(i)+"_"+file, 'r')
+        img2 = np.array(hf.get('dataset_1'))
+        hf.close()
+        img+=img2
+        print(i,'done')
+    except:
+        print(i, 'file not found')
 
-# out = h5py.File(path+str("A")+"_"+file, 'w')
-# out.create_dataset('dataset_1'   , data=img)
-# out.close()
+out = h5py.File(path+str("A")+"_"+file, 'w')
+out.create_dataset('dataset_1'   , data=img)
+out.close()
 
 #%%
 file=path+str("A")+"_"+file
@@ -69,12 +70,33 @@ k=2*np.pi/lam
 imft=np.abs(np.fft.fftshift(np.fft.fft2(np.fft.fftshift(img))))**2
 
 #%%
-plt.figure(123)
-plt.imshow(img)
+SMALL_SIZE = 30
+MEDIUM_SIZE = 30
+BIGGER_SIZE = 30
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
+
+fig=plt.figure('A_speckles.svg',figsize=(10,10))
+
+extent=np.array([-ext/2,ext/2,-ext/2,ext/2])*1e6*1.2
+plt.imshow(img,extent=extent)
+plt.xlabel(r"x $[\mu m]$")
+plt.ylabel(r"y $[\mu m]$")
+plt.xlim(-80,80)
+plt.ylim(-80,80)
+
+
+plt.tight_layout()
+plt.savefig(path+"A_speckles.svg",format="svg") 
 
 #%%
-from matplotlib.colors import LogNorm
-
 SMALL_SIZE = 30
 MEDIUM_SIZE = 30
 BIGGER_SIZE = 30
@@ -93,8 +115,8 @@ fig=plt.figure('Figure_8_3.svg',figsize=(10,10))
 x=np.linspace(0,0.5*px/ext,px)
 
 # imft2=np.where(imft>np.mean(imft)*300,np.mean(imft)*300,imft)
-# imft2=np.log(imft)
-imft2=imft
+imft2=np.log(imft)
+# imft2=imft
 
 extent=np.array([-x[-1],x[-1],-x[-1],x[-1]])*1e-6
 plt.imshow(imft2,extent=extent)
@@ -108,16 +130,19 @@ plt.tight_layout()
 plt.savefig(path+"Figure_8_3.svg",format="svg")   
 
 
-#%%
-rp,sec_data=sector_profile(imft*1,[int(px/2),int(px/2)],[0,4])
 
-rp=running_mean(rp,1)
+
+#%%
+
+rp,sec_data=sector_profile(imft*1,[int(px/2),int(px/2)],[0,10])
+
+rp=running_mean(rp,4)
 
 x=np.linspace(0,0.5*np.sqrt(2)*px/ext,np.size(rp))
 
-dz,zetas,q,NA,lam_v,n,terms=100e-6,30,x/23,0.4,500e-9,1.5,10
+# dz,zetas,q,NA,lam_v,n,terms=100e-6,30,x/23,0.4,500e-9,1.5,10
 
-otf=defocused_otf(dz,zetas,q,NA,lam_v,n,terms)
+# otf=defocused_otf(dz,zetas,q,NA,lam_v,n,terms)
 
 sigmaC=lam*(z1+z2)/2/np.pi/sigmax
 sigmaS=0.4793*lam*z2/(colloid_radius*2)*np.sqrt(2)
@@ -134,9 +159,10 @@ sigmaCq=sigmaC/lam/z2/np.sqrt(2)
 sigmaSq=sigmaS/lam/z2/np.sqrt(2)
 sigmaTq=sigmaT/lam/z2/np.sqrt(2)
 
-rp=rp/np.max(rp)
-rp=rp*otf
 rp[0]=rp[1]
+rp=rp/np.max(rp)
+# rp=rp*otf
+
 
 from scipy.optimize import curve_fit
 def gauss(x,sigma,a,b):
@@ -146,28 +172,34 @@ def gauss(x,sigma,a,b):
 pars=curve_fit(gauss,x,rp,p0=[sigmaq,np.pi*lam*z2,1])
 
 
-SMALL_SIZE = 30
-MEDIUM_SIZE = 30
-BIGGER_SIZE = 30
+last_cal=np.where(x*1e-6>0.6)[0][0]
+sc_q=x[:last_cal]*1e-6
 
-plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
-plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
-plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
-plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
+matplotlib_size=30
+
+plt.rc('font', size=matplotlib_size)          # controls default text sizes
+plt.rc('axes', titlesize=matplotlib_size)     # fontsize of the axes title
+plt.rc('axes', labelsize=matplotlib_size)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=matplotlib_size)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=matplotlib_size)    # fontsize of the tick labels
+plt.rc('legend', fontsize=matplotlib_size)    # legend fontsize
+plt.rc('figure', titlesize=matplotlib_size)  # fontsize of the figure title
 
 
 fig=plt.figure('Figure_8_1.svg',figsize=(10,10))
 
-plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaTq)**2),label="C(q) (temporal)")
-plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaCq)**2),label="C(q) (spatial)")
-plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaSq)**2),label="S(q)")
-plt.plot(x*1e-6,otf,label="H(q)")
-plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaq)**2)*otf,label="I(q)")
+# plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaTq)**2),label="C(q) (temporal)")
+# plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaCq)**2),label="C(q) (spatial)")
+# plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaSq)**2),label="S(q)")
+# plt.plot(x*1e-6,otf,label="H(q)")
+# plt.plot(x*1e-6,np.exp(-0.5*(x/sigmaq)**2)*otf,label="I(q)")
 # plt.plot(x*1e-6,np.exp(-0.5*(x/pars[0][0])**2),label="fit")
-plt.plot(x*1e-6,rp/pars[0][2],label="simulation")
+# plt.plot(x*1e-6,rp,label="simulation A")
+plt.plot(sc_q,f_cal(sc_q),label="calibration")
+plt.plot(sc_q,f_dat(sc_q),label="experiment")
+plt.plot(sc_q,rp[:last_cal]*f_cal(sc_q)+f_wat(sc_q),label="calibrated watered simulation A")
+
 
 plt.xlabel(r'spatial radial frequency $[\mu m^{-1}]$')
 plt.ylabel('power spectrum [a.u.]')
@@ -175,6 +207,7 @@ plt.legend(loc="upper right")
 
 plt.xlim([0,1])
 plt.tight_layout()
+plt.yscale("log")
 plt.savefig(path+"Figure_8_1.svg",format="svg")    
 
 print(pars[0][0]/sigmaq)

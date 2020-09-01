@@ -8,7 +8,7 @@ path='./'
 #jobId0=int(sys.argv[1]) #for using the batch cluster
 jobId0=0
 
-file="img_final2.p"
+file="an.h5"
 
 #Beam
 sigmax=130e-6

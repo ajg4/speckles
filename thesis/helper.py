@@ -362,8 +362,8 @@ def the_speckles(sigmax,sigmay,lam,fwhmk,numSource,z1,z2,fwhmz2,ext,px,colloid_r
     
     #scatlist contains the positions of the scatterers
     np.random.seed(1)
-    x=(np.random.rand(numScat)*0.8-0.4)*ext
-    y=(np.random.rand(numScat)*0.8-0.4)*ext
+    x=(np.random.rand(numScat)*0.6-0.3)*ext
+    y=(np.random.rand(numScat)*0.6-0.3)*ext
     #x=(np.random.rand(numScat))*ext
     #y=(np.random.rand(numScat))*ext
     z=np.random.rand(numScat)*fwhmz2
