@@ -1,5 +1,5 @@
 import sys
-sys.path.append('./srw/')
+sys.path.append('../thesis/srw/')
 from srwlib import *
 import time
 import numpy as np
@@ -388,7 +388,7 @@ gc.collect()
 file = open(path+'wfr_struct'+str(jobId), 'rb');wfr = pk.load(file);file.close()    
 arI1s=np.reshape(arI1s,(wfr.mesh.ny,wfr.mesh.nx))
 
-hf = h5py.File(path+str(jobId)+"srw.h5", 'w')
+hf = h5py.File(path+"srw_test.h5", 'w')
 hf.create_dataset('dataset_1', data=arI1s)
 hf.close()
 print('done in',round(time.time() - t0)) 

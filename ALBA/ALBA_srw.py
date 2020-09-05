@@ -1,5 +1,5 @@
 import sys
-sys.path.append('./srw/')
+sys.path.append('../thesis/srw/')
 from srwlib import *
 import time
 import numpy as np
@@ -17,10 +17,11 @@ c=299792458.0
 e=1.602176634e-19
 electron_mass=9.1093837015e-31
 
-# jobId=int(sys.argv[1])
-# jobId=0
+electrons_per_core=10
+cores=mp.cpu_count()
 
 path='./'
+
 
 def job(jobId):
 
@@ -34,8 +35,8 @@ def job(jobId):
     numSource=1
     xpos=np.random.standard_normal()*sigmax
     ypos=np.random.standard_normal()*sigmay
-    # xpos=0
-    # ypos=0
+    xpos=0
+    ypos=0
     
     #Setup
     z1=33
@@ -403,10 +404,7 @@ def job(jobId):
 
 
 first=0
-for j in range(3):
-        
-    cores=mp.cpu_count()
-    # cores=1
+for j in range(electrons_per_core):
     proc=[]
           
     pool = mp.Pool(processes=cores)
@@ -432,8 +430,8 @@ for j in range(3):
         except:
             print(i, 'file not found')
 
-    # out = h5py.File("./final", 'w')
-    # out.create_dataset('dataset_1'   , data=img)
-    # out.close()
+    out = h5py.File("./srw.h5", 'w')
+    out.create_dataset('dataset_1'   , data=img)
+    out.close()
     # os.system('aws s3 cp ./final s3://mocd/final.h5')
     
