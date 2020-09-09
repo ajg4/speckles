@@ -33,6 +33,10 @@ Several scripts to reproduce the plots of my master thesis, including the SRW si
 - condorSubmit ... submit file for HTCondor cluster
 - calcs.py ... several calculations (colloids concentration, energy deposition, parameter optimisation ...)
 
+## ALBA
+- ALBA_m.py ... preparation of the mask, which is used to phase shift the wavefront
+- ALBA_srw.py ... calculation of SRW wavefront and propagation through a mask
+- ALBA_p.py ... a tool to combine many wavefront images and plot the power spectra
 
 
 ### SRW
